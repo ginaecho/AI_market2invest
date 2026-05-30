@@ -3,7 +3,6 @@
 # ──────────────────────────────────────────────────────────────────────────────
 
 reddit:
-  # Subreddits to monitor (case-insensitive)
   subreddits:
     - stocks
     - investing
@@ -15,15 +14,11 @@ reddit:
     - SecurityAnalysis
     - dividends
     - ETFs
-  # Sort order: hot | top | new | rising
   sort: hot
-  # Maximum posts to fetch per subreddit
   limit_per_subreddit: 25
 
 news:
-  # Maximum articles to fetch per RSS feed
   limit_per_feed: 20
-  # Add or remove feeds as needed: { "Display Name": "rss_url" }
   feeds:
     Yahoo Finance – Top Stories: "https://finance.yahoo.com/rss/topstories"
     Reuters – Business: "https://feeds.reuters.com/reuters/businessNews"
@@ -33,11 +28,84 @@ news:
     Investopedia – News: "https://www.investopedia.com/feedbuilder/feed/getfeed/?feedName=rss_headline"
     Seeking Alpha – Market News: "https://seekingalpha.com/market_news.xml"
     CNBC – Economy: "https://www.cnbc.com/id/20910258/device/rss/rss.html"
+    # Trump & politics
+    Reuters – Politics: "https://feeds.reuters.com/reuters/politicsNews"
+    BBC – US Politics: "http://feeds.bbci.co.uk/news/politics/rss.xml"
+    # Geopolitics
+    Reuters – World: "https://feeds.reuters.com/reuters/worldNews"
+    BBC – World: "http://feeds.bbci.co.uk/news/world/rss.xml"
+    Al Jazeera – News: "https://www.aljazeera.com/xml/rss/all.xml"
+    # Energy
+    Reuters – Energy: "https://feeds.reuters.com/reuters/hotstocks"
+    OilPrice.com: "https://oilprice.com/rss/main"
+    Energy Central: "https://energycentral.com/rss"
+
+social_sources:
+  reddit: true
+  twitter: true
+  youtube: true
+  tiktok: false
+  facebook: false
+  instagram: false
 
 analysis:
-  # Number of top trending topics to surface
   top_topics: 30
 
+# Topic filters – boost these themes in scoring
+topic_filters:
+  trump: true
+  geopolitics: true
+  energy: true
+
+# LLM provider configuration — easily switch between AI providers
+llm:
+  provider: kimi        # Options: kimi, openai, gemini, claude
+  model: ""             # Leave empty for provider default
+  base_url: ""          # Leave empty for provider default
+
+# Scoring weights (should sum to 1.0)
+scoring:
+  news_volume: 0.25
+  social_engagement: 0.25
+  sentiment: 0.25
+  price_momentum: 0.15
+  ai_rationale: 0.10
+
+# Schedule configuration
+schedule:
+  frequency: daily        # daily | weekly
+  time: "09:00"           # local time (HH:MM)
+  # Alternative: use a cron expression
+  # cron: "0 9 * * 1-5"
+
+# Kimi Agent Swarm — specialized AI agents for active news collection
+agent_swarm:
+  enabled: true
+  agents:
+    - trump
+    - geopolitics
+    - energy
+    - products
+    - social
+  max_workers: 5
+  max_queries_per_agent: 5
+  max_articles_per_query: 8
+
+# Cost tracking — USD per 1K tokens
+cost_rates:
+  kimi:
+    input: 0.0015    # $0.0015 per 1K input tokens
+    output: 0.008    # $0.008 per 1K output tokens
+  openai:
+    input: 0.00015   # $0.00015 per 1K input tokens (GPT-4o-mini)
+    output: 0.0006   # $0.0006 per 1K output tokens
+
+# Pre-flight cost estimation
+# When true, pipeline shows estimated cost and asks for confirmation
+confirm_cost: false
+
 output:
-  # Directory (relative to repo root) where reports are saved
   directory: outputs
+  formats: [markdown, html]
+  charts: true
+  top_n: 10

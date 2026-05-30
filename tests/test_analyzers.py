@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.analyzers import topic_extractor, stock_mapper
+from src.analyzers import topic_extractor, stock_mapper, top10_ranker
 
 
 # ── topic_extractor ───────────────────────────────────────────────────────────
@@ -210,3 +211,109 @@ class TestStockMapper:
             assert isinstance(phrase, str)
             assert isinstance(tickers, list)
             assert all(isinstance(t, str) for t in tickers)
+
+
+# ── top10_ranker ─────────────────────────────────────────────────────────────
+
+class TestTop10Ranker:
+    def test_rank_returns_list(self):
+        data = {
+            "A": {"ticker": "A", "composite_score": 90},
+            "B": {"ticker": "B", "composite_score": 80},
+            "C": {"ticker": "C", "composite_score": 70},
+        }
+        ranked = top10_ranker.rank(data, top_n=2)
+        assert isinstance(ranked, list)
+        assert len(ranked) == 2
+        assert ranked[0]["ticker"] == "A"
+        assert ranked[1]["ticker"] == "B"
+
+    def test_rank_annotates_rank(self):
+        data = {"X": {"ticker": "X", "composite_score": 50}}
+        ranked = top10_ranker.rank(data, top_n=1)
+        assert ranked[0]["rank"] == 1
+
+    def test_save_and_load_ticker_history(self, tmp_path):
+        # Override the history file path to use a temp file
+        original_file = top10_ranker._TICKER_HISTORY_FILE
+        temp_file = tmp_path / "ticker_score_history.json"
+        top10_ranker._TICKER_HISTORY_FILE = temp_file
+
+        try:
+            ticker_data = {
+                "NVDA": {
+                    "ticker": "NVDA",
+                    "composite_score": 85.5,
+                    "price": 450.0,
+                    "change_pct": 2.5,
+                    "avg_sentiment_label": "bullish",
+                },
+                "COIN": {
+                    "ticker": "COIN",
+                    "composite_score": 62.3,
+                    "price": 180.0,
+                    "change_pct": -1.2,
+                    "avg_sentiment_label": "bearish",
+                },
+            }
+            top10_ranker.save_ticker_history(ticker_data)
+            assert temp_file.exists()
+
+            nvda_hist = top10_ranker.load_ticker_history("NVDA")
+            assert len(nvda_hist) == 1
+            assert nvda_hist[0]["composite_score"] == 85.5
+
+            coin_hist = top10_ranker.load_ticker_history("COIN")
+            assert len(coin_hist) == 1
+            assert coin_hist[0]["composite_score"] == 62.3
+        finally:
+            top10_ranker._TICKER_HISTORY_FILE = original_file
+
+    def test_ticker_history_no_duplicate_days(self, tmp_path):
+        original_file = top10_ranker._TICKER_HISTORY_FILE
+        temp_file = tmp_path / "ticker_score_history.json"
+        top10_ranker._TICKER_HISTORY_FILE = temp_file
+
+        try:
+            ticker_data = {"T": {"ticker": "T", "composite_score": 50.0, "avg_sentiment_label": "neutral"}}
+            top10_ranker.save_ticker_history(ticker_data)
+            top10_ranker.save_ticker_history(ticker_data)
+            hist = top10_ranker.load_ticker_history("T")
+            assert len(hist) == 1
+        finally:
+            top10_ranker._TICKER_HISTORY_FILE = original_file
+
+    def test_ticker_history_limits_to_90_days(self, tmp_path):
+        original_file = top10_ranker._TICKER_HISTORY_FILE
+        temp_file = tmp_path / "ticker_score_history.json"
+        top10_ranker._TICKER_HISTORY_FILE = temp_file
+
+        try:
+            # Seed file with 100 fake entries
+            entries = []
+            for i in range(100):
+                date_str = f"2024-01-{i+1:02d}"
+                entries.append({
+                    "date": date_str,
+                    "composite_score": float(i),
+                    "price": 100.0,
+                    "change_pct": 0.0,
+                    "sentiment_label": "neutral",
+                })
+            temp_file.write_text(json.dumps({"T": entries}), encoding="utf-8")
+
+            ticker_data = {"T": {"ticker": "T", "composite_score": 99.0, "avg_sentiment_label": "neutral"}}
+            top10_ranker.save_ticker_history(ticker_data)
+            hist = top10_ranker.load_ticker_history("T")
+            assert len(hist) == 90
+        finally:
+            top10_ranker._TICKER_HISTORY_FILE = original_file
+
+    def test_load_ticker_history_missing_returns_empty(self):
+        original_file = top10_ranker._TICKER_HISTORY_FILE
+        top10_ranker._TICKER_HISTORY_FILE = Path("/nonexistent/path/history.json")
+        try:
+            hist = top10_ranker.load_ticker_history("FAKE")
+            assert hist == []
+        finally:
+            top10_ranker._TICKER_HISTORY_FILE = original_file

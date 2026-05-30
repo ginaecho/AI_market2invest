@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Intelligence Report — 2026-05-30 19:30 UTC</title>
+  <style>
+
+:root {
+  --bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --text: #212529;
+  --text-muted: #6c757d;
+  --border: #dee2e6;
+  --primary: #0d6efd;
+  --success: #198754;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #0dcaf0;
+  --accent: #6610f2;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 14px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', Monaco, Inconsolata, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --card-bg: #1a1d24;
+    --text: #e9ecef;
+    --text-muted: #adb5bd;
+    --border: #2d333b;
+    --primary: #6ea8fe;
+    --success: #75b798;
+    --warning: #ffda6a;
+    --danger: #ea868f;
+    --info: #6edff6;
+    --accent: #a27de3;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.header {
+  text-align: center;
+  padding: 48px 0 32px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 32px;
+}
+.header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+.header .subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+.header .disclaimer {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ── Live indicator ──────────────────────────────────────────────────────── */
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--success);
+  font-weight: 600;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+  margin-bottom: 28px;
+  border: 1px solid var(--border);
+}
+
+.card h2 {
+  margin: 0 0 20px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card h3 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th, td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: transparent;
+}
+
+tr:hover td {
+  background: rgba(13, 110, 253, 0.04);
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-buy  { background: rgba(25, 135, 84, 0.12); color: var(--success); }
+.badge-hold { background: rgba(255, 193, 7, 0.15); color: #d4a017; }
+.badge-watch{ background: rgba(13, 202, 240, 0.12); color: var(--info); }
+.badge-sell { background: rgba(220, 53, 69, 0.12); color: var(--danger); }
+
+.badge-bullish { background: rgba(25, 135, 84, 0.12); color: var(--success); }
+.badge-bearish { background: rgba(220, 53, 69, 0.12); color: var(--danger); }
+.badge-neutral { background: rgba(108, 117, 125, 0.12); color: var(--text-muted); }
+
+/* ── Score Bars ──────────────────────────────────────────────────────────── */
+.score-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.score-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-bar-label {
+  width: 130px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.score-bar-track {
+  flex: 1;
+  height: 22px;
+  background: var(--border);
+  border-radius: 11px;
+  overflow: hidden;
+  position: relative;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 11px;
+  transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  min-width: 30px;
+}
+
+.score-bar-value {
+  width: 50px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+.bar-news   { background: linear-gradient(90deg, #0d6efd, #0dcaf0); }
+.bar-social { background: linear-gradient(90deg, #6610f2, #a27de3); }
+.bar-sent   { background: linear-gradient(90deg, #198754, #75b798); }
+.bar-mom    { background: linear-gradient(90deg, #fd7e14, #ffc107); }
+.bar-ai     { background: linear-gradient(90deg, #dc3545, #ea868f); }
+
+/* ── Sparkline ───────────────────────────────────────────────────────────── */
+.sparkline-wrap {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  margin: 10px 0;
+}
+
+.sparkline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sparkline-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sparkline-range {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.sparkline-svg {
+  width: 100%;
+  height: 90px;
+  overflow: visible;
+}
+
+.sparkline-path {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sparkline-area {
+  fill: rgba(13, 110, 253, 0.08);
+  stroke: none;
+}
+
+.sparkline-dot {
+  fill: var(--primary);
+  stroke: var(--card-bg);
+  stroke-width: 2.5;
+  r: 4;
+  animation: dotPulse 2s infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { r: 4; }
+  50% { r: 5.5; }
+}
+
+.sparkline-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.sparkline-label {
+  font-size: 9px;
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.sparkline-grid {
+  stroke: var(--border);
+  stroke-width: 0.5;
+  stroke-dasharray: 2,2;
+  opacity: 0.5;
+}
+
+/* ── Ticker Cards ────────────────────────────────────────────────────────── */
+.ticker-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.ticker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  background: linear-gradient(135deg, rgba(13,110,253,0.05), rgba(102,16,242,0.05));
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ticker-header:hover {
+  background: linear-gradient(135deg, rgba(13,110,253,0.08), rgba(102,16,242,0.08));
+}
+
+.ticker-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ticker-symbol {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.ticker-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.ticker-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ticker-score {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.ticker-body {
+  padding: 24px 28px;
+}
+
+.ticker-section {
+  margin-bottom: 20px;
+}
+.ticker-section:last-child { margin-bottom: 0; }
+
+.ticker-section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* ── Sentiment Gauge ─────────────────────────────────────────────────────── */
+.sentiment-gauge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 10px 0;
+}
+
+.sentiment-track {
+  flex: 1;
+  height: 10px;
+  background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
+  border-radius: 5px;
+  position: relative;
+}
+
+.sentiment-marker {
+  position: absolute;
+  top: -5px;
+  width: 20px;
+  height: 20px;
+  background: var(--card-bg);
+  border: 3px solid var(--text);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  transition: left 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sentiment-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── Source Links ────────────────────────────────────────────────────────── */
+.source-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(13, 110, 253, 0.06);
+  border: 1px solid rgba(13, 110, 253, 0.15);
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.source-link:hover {
+  background: rgba(13, 110, 253, 0.12);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* ── Narrative Block ─────────────────────────────────────────────────────── */
+.narrative {
+  background: linear-gradient(135deg, rgba(13,110,253,0.04), rgba(102,16,242,0.04));
+  border-left: 4px solid var(--primary);
+  padding: 16px 20px;
+  border-radius: 0 10px 10px 0;
+  font-style: italic;
+  color: var(--text);
+  margin: 10px 0;
+}
+
+/* ── Cost Cards ──────────────────────────────────────────────────────────── */
+.cost-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.cost-card {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.cost-card-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 4px 0;
+}
+
+.cost-card-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* ── Topic Tags ──────────────────────────────────────────────────────────── */
+.topic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ── Collapsible ─────────────────────────────────────────────────────────── */
+.collapse-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+  color: var(--text-muted);
+}
+.ticker-card.collapsed .ticker-body { display: none; }
+.ticker-card.collapsed .collapse-icon { transform: rotate(-90deg); }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 32px;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .header h1 { font-size: 1.6rem; }
+  .ticker-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .score-bar-label { width: 100px; font-size: 0.75rem; }
+  .cost-grid { grid-template-columns: 1fr 1fr; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📈 Market Intelligence Report</h1>
+      <div class="subtitle">Generated: <strong>2026-05-30 19:30 UTC</strong></div>
+      <div class="disclaimer">
+        This report is generated automatically from public Reddit posts, news feeds, 
+        social media, and market data. It is for informational purposes only and does 
+        not constitute financial advice.
+      </div>
+    </div>
+    <div class="card">
+      <h2>📊 Top-10 Investment Picks</h2>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin:-8px 0 16px">
+        Ranked by composite score (news volume + social engagement + sentiment + price momentum + AI rationale).
+      </p>
+      <table>
+        <tr>
+          <th>Rank</th><th>Ticker</th><th>Score</th><th>Price</th>
+          <th>Change %</th><th>Sentiment</th><th>Signal</th><th>Δ</th>
+        </tr>
+        <tr><td>1</td><td><strong>LNG</strong></td><td style="font-weight:800;color:var(--primary)">74.68</td><td>$224.86</td><td>-2.05</td><td><span class="badge badge-bullish">Bullish</span></td><td><span class="badge badge-watch">🔵 WATCH</span></td><td>—</td></tr>
+        <tr><td>2</td><td><strong>DE</strong></td><td style="font-weight:800;color:var(--primary)">67.04</td><td>$542.18</td><td>0.59</td><td><span class="badge badge-bearish">Bearish</span></td><td><span class="badge badge-watch">🔵 WATCH</span></td><td>↑1</td></tr>
+        <tr><td>3</td><td><strong>BP</strong></td><td style="font-weight:800;color:var(--primary)">62.24</td><td>$41.87</td><td>0.67</td><td><span class="badge badge-bullish">Bullish</span></td><td><span class="badge badge-buy">🟢 BUY</span></td><td>new</td></tr>
+        <tr><td>4</td><td><strong>XOM</strong></td><td style="font-weight:800;color:var(--primary)">57.25</td><td>$145.26</td><td>-1.16</td><td><span class="badge badge-neutral">Neutral</span></td><td><span class="badge badge-buy">🟢 BUY</span></td><td>↓2</td></tr>
+        <tr><td>5</td><td><strong>DJT</strong></td><td style="font-weight:800;color:var(--primary)">55.71</td><td>$9.31</td><td>4.61</td><td><span class="badge badge-neutral">Neutral</span></td><td><span class="badge badge-hold">🟡 HOLD</span></td><td>new</td></tr>
+        <tr><td>6</td><td><strong>CVX</strong></td><td style="font-weight:800;color:var(--primary)">54.93</td><td>$182.46</td><td>-0.31</td><td><span class="badge badge-neutral">Neutral</span></td><td><span class="badge badge-buy">🟢 BUY</span></td><td>↑1</td></tr>
+        <tr><td>7</td><td><strong>NVDA</strong></td><td style="font-weight:800;color:var(--primary)">54.25</td><td>$211.14</td><td>-1.45</td><td><span class="badge badge-neutral">Neutral</span></td><td><span class="badge badge-buy">🟢 BUY</span></td><td>new</td></tr>
+        <tr><td>8</td><td><strong>TSM</strong></td><td style="font-weight:800;color:var(--primary)">52.69</td><td>$418.45</td><td>-1.51</td><td><span class="badge badge-bearish">Bearish</span></td><td><span class="badge badge-watch">🔵 WATCH</span></td><td>↓4</td></tr>
+        <tr><td>9</td><td><strong>GLD</strong></td><td style="font-weight:800;color:var(--primary)">51.55</td><td>$417.12</td><td>1.05</td><td><span class="badge badge-neutral">Neutral</span></td><td><span class="badge badge-hold">🟡 HOLD</span></td><td>—</td></tr>
+        <tr><td>10</td><td><strong>LMT</strong></td><td style="font-weight:800;color:var(--primary)">50.07</td><td>$530.45</td><td>-1.26</td><td><span class="badge badge-neutral">Neutral</span></td><td><span class="badge badge-watch">🔵 WATCH</span></td><td>↓2</td></tr>
+      </table>
+    </div>
+    <h2 style="margin:36px 0 20px;font-size:1.5rem">💡 Why These Stocks?</h2>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">LNG</div>
+          <div class="ticker-meta">
+            <span>💵 $224.86 &nbsp;|&nbsp; 📊 -2.05%</span>
+            <span class="badge badge-bullish">Bullish</span>
+            <span class="badge badge-watch">🔵 WATCH</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">74.68</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="100.0">      ~25.0    </div>  </div>  <div class="score-bar-value">100.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="67.0">      ~16.8    </div>  </div>  <div class="score-bar-value">67.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="65.5">      ~16.4    </div>  </div>  <div class="score-bar-value">65.5</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="83.8">      ~12.6    </div>  </div>  <div class="score-bar-value">83.8</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="40.0">      ~4.0    </div>  </div>  <div class="score-bar-value">40.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-bullish">Bullish</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.309</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="65.4"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--success);font-size:0.9rem;margin-top:8px">✓ Market tone is <strong>positive</strong> — optimistic language in coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Costco says it saw &#x27;record-breaking&#x27; gas volumes amid rising prices&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.cnbc.com/2026/05/28/costco-cost-q3-2026-earnings.html" target="_blank" rel="noopener">🔗 Costco says it saw &#x27;record-breaking&#x27; gas volumes amid rising</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/29/energy-costs-inflation-iran-war-trump.html" target="_blank" rel="noopener">🔗 Iran war cost: Average U.S. household paying $450 more on ga</a>
+<span class="source-link" style="opacity:0.6">🔗 Trump may not be a fan of clean energy but Iran war is accel</span>
+<span class="source-link" style="opacity:0.6">🔗 Can EU renewables outmuscle US oil and gas?</span>
+<span class="source-link" style="opacity:0.6">🔗 Energy Stocks Are Crushing the Market in 2026 — and Trump Co</span>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">DE</div>
+          <div class="ticker-meta">
+            <span>💵 $542.18 &nbsp;|&nbsp; 📊 0.59%</span>
+            <span class="badge badge-bearish">Bearish</span>
+            <span class="badge badge-watch">🔵 WATCH</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">67.04</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="100.0">      ~25.0    </div>  </div>  <div class="score-bar-value">100.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="67.9">      ~17.0    </div>  </div>  <div class="score-bar-value">67.9</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="47.3">      ~11.8    </div>  </div>  <div class="score-bar-value">47.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="61.6">      ~9.2    </div>  </div>  <div class="score-bar-value">61.6</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="40.0">      ~4.0    </div>  </div>  <div class="score-bar-value">40.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-bearish">Bearish</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: -0.053</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="47.3"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--danger);font-size:0.9rem;margin-top:8px">⚠ Market tone is <strong>negative</strong> — cautious or pessimistic language in coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Dow Jones Futures: Iran Deal Or No, Market Hits Highs; Nvidia, Tesla Lead 5 Titans Near Buy Points&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-iran-hopes-nvidia-tesla-stocks-near-buy-points/?src=A00220&amp;yptr=yahoo" target="_blank" rel="noopener">🔗 Dow Jones Futures: Iran Deal Or No, Market Hits Highs; Nvidi</a>
+<a class="source-link" href="https://finance.yahoo.com/markets/stocks/articles/why-fund-made-30-million-190705782.html" target="_blank" rel="noopener">🔗 Why This Fund Made a $30 Million Bet on Floor &amp; Decor Amid a</a>
+<a class="source-link" href="https://www.thestreet.com/investing/stocks/bank-of-america-raises-marvell-stock-price-target-after-earnings?.tsrc=rss" target="_blank" rel="noopener">🔗 Bank of America resets Marvell stock price target after earn</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning o</a>
+</div>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">▶️ YouTube Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.youtube.com/watch?v=skrVxn11P3g" target="_blank" rel="noopener">🔗 Mad Money 05/29/26 | Audio Only</a>
+<a class="source-link" href="https://www.youtube.com/watch?v=JaID2co8KVg" target="_blank" rel="noopener">🔗 I wonder if we will say this is the era when Dell took over </a>
+<a class="source-link" href="https://www.youtube.com/shorts/ShDu4ciPHGg" target="_blank" rel="noopener">🔗 Tennis analyst Brad Gilbert on ESPN not renewing his contrac</a>
+<a class="source-link" href="https://www.youtube.com/shorts/w9984DjWjT0" target="_blank" rel="noopener">🔗 FCC chair on Disney&#x27;s ABC broadcast license review: &#x27;There&#x27;s</a>
+<a class="source-link" href="https://www.youtube.com/shorts/E2a5CImHFwc" target="_blank" rel="noopener">🔗 Tennis analyst Brad Gilbert on coaching careers: &#x27;It&#x27;s massi</a>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">BP</div>
+          <div class="ticker-meta">
+            <span>💵 $41.87 &nbsp;|&nbsp; 📊 0.67%</span>
+            <span class="badge badge-bullish">Bullish</span>
+            <span class="badge badge-buy">🟢 BUY</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">62.24</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="33.3">      ~8.3    </div>  </div>  <div class="score-bar-value">33.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="75.9">      ~19.0    </div>  </div>  <div class="score-bar-value">75.9</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="65.9">      ~16.5    </div>  </div>  <div class="score-bar-value">65.9</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="63.1">      ~9.5    </div>  </div>  <div class="score-bar-value">63.1</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="90.0">      ~9.0    </div>  </div>  <div class="score-bar-value">90.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-bullish">Bullish</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.318</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="65.9"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--success);font-size:0.9rem;margin-top:8px">✓ Market tone is <strong>positive</strong> — optimistic language in coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">European oil major positioned to benefit from Middle East tensions and potential oil supply disruptions.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Oil exports through the Strait of Hormuz might not return to levels seen before the Iran war&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Iran conflict supporting oil prices</li>
+            <li>Strait of Hormuz supply concerns</li>
+            <li>Energy sector momentum</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Iran diplomatic resolution</li>
+            <li>European economic weakness</li>
+            <li>Renewable energy transition</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning o</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/29/energy-costs-inflation-iran-war-trump.html" target="_blank" rel="noopener">🔗 Iran war cost: Average U.S. household paying $450 more on ga</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/28/goolsbee-iran-energy-inflation-asia-stagflation-shock-ai-artificial-intelligence-jobs.html" target="_blank" rel="noopener">🔗 Energy inflation has been more persistent than expected, Fed</a>
+<span class="source-link" style="opacity:0.6">🔗 GameStop Shares Roiled by Short-Lived Roaring Kitty Posts</span>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">XOM</div>
+          <div class="ticker-meta">
+            <span>💵 $145.26 &nbsp;|&nbsp; 📊 -1.16%</span>
+            <span class="badge badge-neutral">Neutral</span>
+            <span class="badge badge-buy">🟢 BUY</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">57.25</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="0.0">      ~0.0    </div>  </div>  <div class="score-bar-value">0.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="100.0">      ~25.0    </div>  </div>  <div class="score-bar-value">100.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="50.0">      ~12.5    </div>  </div>  <div class="score-bar-value">50.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="71.7">      ~10.8    </div>  </div>  <div class="score-bar-value">71.7</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="90.0">      ~9.0    </div>  </div>  <div class="score-bar-value">90.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-neutral">Neutral</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.000</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="50.0"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">● Market tone is <strong>neutral</strong> — mixed or balanced coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">Iran tensions and oil supply concerns position integrated oil majors to benefit from higher crude prices and refining margins.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Oil exports through the Strait of Hormuz might not return to levels seen before the Iran war&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Geopolitical risk premium in oil markets</li>
+            <li>Strait of Hormuz supply disruption fears</li>
+            <li>Strong energy sector sentiment</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Diplomatic resolution with Iran</li>
+            <li>Economic recession impacting demand</li>
+            <li>ESG investment outflows</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning o</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/28/costco-cost-q3-2026-earnings.html" target="_blank" rel="noopener">🔗 Costco says it saw &#x27;record-breaking&#x27; gas volumes amid rising</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/29/energy-costs-inflation-iran-war-trump.html" target="_blank" rel="noopener">🔗 Iran war cost: Average U.S. household paying $450 more on ga</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/28/goolsbee-iran-energy-inflation-asia-stagflation-shock-ai-artificial-intelligence-jobs.html" target="_blank" rel="noopener">🔗 Energy inflation has been more persistent than expected, Fed</a>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">DJT</div>
+          <div class="ticker-meta">
+            <span>💵 $9.31 &nbsp;|&nbsp; 📊 4.61%</span>
+            <span class="badge badge-neutral">Neutral</span>
+            <span class="badge badge-hold">🟡 HOLD</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">55.71</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="0.0">      ~0.0    </div>  </div>  <div class="score-bar-value">0.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="90.3">      ~22.6    </div>  </div>  <div class="score-bar-value">90.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="50.0">      ~12.5    </div>  </div>  <div class="score-bar-value">50.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="97.6">      ~14.6    </div>  </div>  <div class="score-bar-value">97.6</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="60.0">      ~6.0    </div>  </div>  <div class="score-bar-value">60.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-neutral">Neutral</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.000</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="50.0"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">● Market tone is <strong>neutral</strong> — mixed or balanced coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">Trump-related stock likely to see volatility based on political developments and his involvement in Iran situation.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;How durable are Donald Trump&#x27;s executive orders?&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Trump presidency discussions</li>
+            <li>Political engagement with Iran situation</li>
+            <li>High social media attention on Trump</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Political uncertainty</li>
+            <li>Regulatory scrutiny</li>
+            <li>Volatile social media sentiment</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<span class="source-link" style="opacity:0.6">🔗 How durable are Donald Trump&#x27;s executive orders?</span>
+<span class="source-link" style="opacity:0.6">🔗 Executive Orders: Das sind die ersten Entscheidungen und Erl</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump&#x27;s executive orders signal &#x27;America First&#x27; goals</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump order creates branded IRA website starting in January</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump tariffs: China slaps new 125% levy on US goods</span>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">CVX</div>
+          <div class="ticker-meta">
+            <span>💵 $182.46 &nbsp;|&nbsp; 📊 -0.31%</span>
+            <span class="badge badge-neutral">Neutral</span>
+            <span class="badge badge-buy">🟢 BUY</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">54.93</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="0.0">      ~0.0    </div>  </div>  <div class="score-bar-value">0.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="100.0">      ~25.0    </div>  </div>  <div class="score-bar-value">100.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="50.0">      ~12.5    </div>  </div>  <div class="score-bar-value">50.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="56.2">      ~8.4    </div>  </div>  <div class="score-bar-value">56.2</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="90.0">      ~9.0    </div>  </div>  <div class="score-bar-value">90.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-neutral">Neutral</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.000</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="50.0"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">● Market tone is <strong>neutral</strong> — mixed or balanced coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">Geopolitical tensions with Iran and potential disruptions to Strait of Hormuz oil exports create favorable pricing environment for major oil producers.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Oil exports through the Strait of Hormuz might not return to levels seen before the Iran war&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Iran conflict driving oil price volatility</li>
+            <li>Strait of Hormuz export concerns</li>
+            <li>Energy sector gaining attention amid geopolitical risks</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Potential Iran deal reducing oil prices</li>
+            <li>Global economic slowdown reducing energy demand</li>
+            <li>Renewable energy transition pressure</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning o</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/28/costco-cost-q3-2026-earnings.html" target="_blank" rel="noopener">🔗 Costco says it saw &#x27;record-breaking&#x27; gas volumes amid rising</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/29/energy-costs-inflation-iran-war-trump.html" target="_blank" rel="noopener">🔗 Iran war cost: Average U.S. household paying $450 more on ga</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/28/goolsbee-iran-energy-inflation-asia-stagflation-shock-ai-artificial-intelligence-jobs.html" target="_blank" rel="noopener">🔗 Energy inflation has been more persistent than expected, Fed</a>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">NVDA</div>
+          <div class="ticker-meta">
+            <span>💵 $211.14 &nbsp;|&nbsp; 📊 -1.45%</span>
+            <span class="badge badge-neutral">Neutral</span>
+            <span class="badge badge-buy">🟢 BUY</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">54.25</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="0.0">      ~0.0    </div>  </div>  <div class="score-bar-value">0.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="85.3">      ~21.3    </div>  </div>  <div class="score-bar-value">85.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="50.0">      ~12.5    </div>  </div>  <div class="score-bar-value">50.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="76.1">      ~11.4    </div>  </div>  <div class="score-bar-value">76.1</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="90.0">      ~9.0    </div>  </div>  <div class="score-bar-value">90.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-neutral">Neutral</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.000</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="50.0"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">● Market tone is <strong>neutral</strong> — mixed or balanced coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">AI leader continues to benefit from strong demand despite geopolitical concerns, with market hitting new highs supporting tech momentum.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Oil exports through the Strait of Hormuz might not return to levels seen before the Iran war&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Market hitting new highs</li>
+            <li>Continued AI demand</li>
+            <li>Strong positioning in growth sectors</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>China trade tensions affecting supply chain</li>
+            <li>Geopolitical restrictions on chip exports</li>
+            <li>Valuation concerns</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning o</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/south-asian-music-warner-records-5-junction.html" target="_blank" rel="noopener">🔗 Investors and labels are buying into the growing South Asian</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/29/asian-foods-beyond-ethnic-aisle.html" target="_blank" rel="noopener">🔗 &#x27;Our flavors are on the shelf&#x27;: The evolution of Asian groce</a>
+<a class="source-link" href="https://www.marketwatch.com/story/chinas-next-export-shock-walks-on-two-legs-and-costs-less-than-a-used-car-f0becf3f?mod=mw_rss_topstories" target="_blank" rel="noopener">🔗 China’s next export shock walks on two legs — and costs less</a>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">TSM</div>
+          <div class="ticker-meta">
+            <span>💵 $418.45 &nbsp;|&nbsp; 📊 -1.51%</span>
+            <span class="badge badge-bearish">Bearish</span>
+            <span class="badge badge-watch">🔵 WATCH</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">52.69</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="33.3">      ~8.3    </div>  </div>  <div class="score-bar-value">33.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="85.3">      ~21.3    </div>  </div>  <div class="score-bar-value">85.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="29.9">      ~7.5    </div>  </div>  <div class="score-bar-value">29.9</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="77.0">      ~11.5    </div>  </div>  <div class="score-bar-value">77.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="40.0">      ~4.0    </div>  </div>  <div class="score-bar-value">40.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-bearish">Bearish</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: -0.402</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="29.9"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--danger);font-size:0.9rem;margin-top:8px">⚠ Market tone is <strong>negative</strong> — cautious or pessimistic language in coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">Taiwan semiconductor exposure creates geopolitical risk amid China tensions while maintaining strong fundamental position.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;Oil exports through the Strait of Hormuz might not return to levels seen before the Iran war&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Strong semiconductor demand</li>
+            <li>AI chip manufacturing leadership</li>
+            <li>Technology sector strength</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>China-Taiwan geopolitical tensions</li>
+            <li>Supply chain disruptions</li>
+            <li>Geopolitical restrictions on China trade</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning o</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/30/south-asian-music-warner-records-5-junction.html" target="_blank" rel="noopener">🔗 Investors and labels are buying into the growing South Asian</a>
+<a class="source-link" href="https://www.cnbc.com/2026/05/29/asian-foods-beyond-ethnic-aisle.html" target="_blank" rel="noopener">🔗 &#x27;Our flavors are on the shelf&#x27;: The evolution of Asian groce</a>
+<a class="source-link" href="https://www.marketwatch.com/story/chinas-next-export-shock-walks-on-two-legs-and-costs-less-than-a-used-car-f0becf3f?mod=mw_rss_topstories" target="_blank" rel="noopener">🔗 China’s next export shock walks on two legs — and costs less</a>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">GLD</div>
+          <div class="ticker-meta">
+            <span>💵 $417.12 &nbsp;|&nbsp; 📊 1.05%</span>
+            <span class="badge badge-neutral">Neutral</span>
+            <span class="badge badge-hold">🟡 HOLD</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">51.55</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="0.0">      ~0.0    </div>  </div>  <div class="score-bar-value">0.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="90.3">      ~22.6    </div>  </div>  <div class="score-bar-value">90.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="50.0">      ~12.5    </div>  </div>  <div class="score-bar-value">50.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="69.8">      ~10.5    </div>  </div>  <div class="score-bar-value">69.8</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="60.0">      ~6.0    </div>  </div>  <div class="score-bar-value">60.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-neutral">Neutral</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.000</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="50.0"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">● Market tone is <strong>neutral</strong> — mixed or balanced coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">Gold maintains safe-haven appeal amid Iran tensions but faces headwinds from potential Trump policies and strong dollar.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;How durable are Donald Trump&#x27;s executive orders?&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Geopolitical uncertainty with Iran</li>
+            <li>War-related market volatility</li>
+            <li>Safe-haven demand during conflicts</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Trump policies potentially strengthening dollar</li>
+            <li>Rising interest rates reducing gold appeal</li>
+            <li>Resolution of geopolitical tensions</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<span class="source-link" style="opacity:0.6">🔗 How durable are Donald Trump&#x27;s executive orders?</span>
+<span class="source-link" style="opacity:0.6">🔗 Executive Orders: Das sind die ersten Entscheidungen und Erl</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump&#x27;s executive orders signal &#x27;America First&#x27; goals</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump order creates branded IRA website starting in January</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump tariffs: China slaps new 125% levy on US goods</span>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-card">
+      <div class="ticker-header" onclick="toggleTicker(this.parentElement)">
+        <div class="ticker-header-left">
+          <div class="ticker-symbol">LMT</div>
+          <div class="ticker-meta">
+            <span>💵 $530.45 &nbsp;|&nbsp; 📊 -1.26%</span>
+            <span class="badge badge-neutral">Neutral</span>
+            <span class="badge badge-watch">🔵 WATCH</span>
+          </div>
+        </div>
+        <div class="ticker-score-wrap">
+          <div class="ticker-score">50.07</div>
+          <div class="collapse-icon">▼</div>
+        </div>
+      </div>
+      <div class="ticker-body">
+        <div class="ticker-section">
+          <div class="ticker-section-title">📊 Ranking Breakdown</div>
+          <div class="score-bar-container">
+<div class="score-bar-row">  <div class="score-bar-label">News Volume</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-news" data-width="0.0">      ~0.0    </div>  </div>  <div class="score-bar-value">0.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Social Engagement</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-social" data-width="90.3">      ~22.6    </div>  </div>  <div class="score-bar-value">90.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Sentiment</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-sent" data-width="50.0">      ~12.5    </div>  </div>  <div class="score-bar-value">50.0</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Price Momentum</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-mom" data-width="73.3">      ~11.0    </div>  </div>  <div class="score-bar-value">73.3</div></div>
+<div class="score-bar-row">  <div class="score-bar-label">Ai Rationale</div>  <div class="score-bar-track">    <div class="score-bar-fill bar-ai" data-width="40.0">      ~4.0    </div>  </div>  <div class="score-bar-value">40.0</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">
+            Weights: News 25% | Social 25% | Sentiment 25% | Momentum 15% | AI 10%
+          </p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🎭 Sentiment Analysis</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span class="badge badge-neutral">Neutral</span>
+            <span style="font-family:var(--font-mono);font-size:0.9rem">compound: 0.000</span>
+          </div>
+<div class="sentiment-gauge">  <div style="flex:1">    <div class="sentiment-track">      <div class="sentiment-marker" data-pos="50.0"></div>    </div>    <div class="sentiment-labels">      <span>Bearish (-1.0)</span>      <span>Neutral (0)</span>      <span>Bullish (+1.0)</span>    </div>  </div></div>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">● Market tone is <strong>neutral</strong> — mixed or balanced coverage.</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🗣️ What the Market Is Saying</div>
+          <div class="narrative">Defense contractor positioned to benefit from heightened geopolitical tensions and potential increased military spending.</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-top:8px"><strong>Recent headline:</strong> &ldquo;How durable are Donald Trump&#x27;s executive orders?&rdquo;</p>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">🚀 Catalysts</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Iran conflict escalation</li>
+            <li>Increased defense spending discussions</li>
+            <li>Geopolitical instability driving defense demand</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">⚠️ Risks</div>
+          <ul style="margin:0;padding-left:20px">
+            <li>Peace negotiations reducing defense needs</li>
+            <li>Budget constraints limiting spending</li>
+            <li>Program delays or cancellations</li>
+          </ul>
+        </div>
+        <div class="ticker-section">
+          <div class="ticker-section-title">📰 News Sources</div>
+<div class="source-grid">
+<span class="source-link" style="opacity:0.6">🔗 How durable are Donald Trump&#x27;s executive orders?</span>
+<span class="source-link" style="opacity:0.6">🔗 Executive Orders: Das sind die ersten Entscheidungen und Erl</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump&#x27;s executive orders signal &#x27;America First&#x27; goals</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump order creates branded IRA website starting in January</span>
+<span class="source-link" style="opacity:0.6">🔗 Trump tariffs: China slaps new 125% levy on US goods</span>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>🔥 Top Trending Topics</h2>
+      <div class="topic-tags">
+        <span class="topic-tag">trump <strong>116</strong></span>
+        <span class="topic-tag">china <strong>70</strong></span>
+        <span class="topic-tag">president <strong>46</strong></span>
+        <span class="topic-tag">war <strong>42</strong></span>
+        <span class="topic-tag">die <strong>42</strong></span>
+        <span class="topic-tag">iran <strong>40</strong></span>
+        <span class="topic-tag">gas <strong>40</strong></span>
+        <span class="topic-tag">energy <strong>38</strong></span>
+        <span class="topic-tag">donald <strong>32</strong></span>
+        <span class="topic-tag">donald trump <strong>32</strong></span>
+        <span class="topic-tag">oil <strong>28</strong></span>
+        <span class="topic-tag">deal <strong>26</strong></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📰 News Highlights</h2>
+      <h3 style="margin-top:16px">Yahoo Finance – Top Stories</h3>
+      <div class="source-grid">
+        <a class="source-link" href="https://finance.yahoo.com/markets/stocks/articles/bank-america-stark-message-meta-191300984.html" target="_blank" rel="noopener">🔗 Bank of America has a stark message for Meta stock investors</a>
+        <a class="source-link" href="https://finance.yahoo.com/markets/stocks/articles/sandisk-corporation-sndk-renaissance-technologies-191055514.html" target="_blank" rel="noopener">🔗 Sandisk Corporation (SNDK): Renaissance Technologies Trims Stake</a>
+        <a class="source-link" href="https://finance.yahoo.com/markets/stocks/articles/micron-technology-mu-renaissance-technologies-191025719.html" target="_blank" rel="noopener">🔗 Micron Technology (MU): Renaissance Technologies Is Selling This Stock</a>
+        <a class="source-link" href="https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-iran-hopes-nvidia-tesla-stocks-near-buy-points/?src=A00220&amp;yptr=yahoo" target="_blank" rel="noopener">🔗 Dow Jones Futures: Iran Deal Or No, Market Hits Highs; Nvidia, Tesla L</a>
+      </div>
+      <h3 style="margin-top:16px">Yahoo Finance – Markets</h3>
+      <div class="source-grid">
+        <a class="source-link" href="https://finance.yahoo.com/m/fd63b97c-c320-3202-b483-76d551ec4785/dow-jones-futures%3A-iran-deal.html?.tsrc=rss" target="_blank" rel="noopener">🔗 Dow Jones Futures: Iran Deal Or No, Market Hits Highs; Nvidia, Tesla L</a>
+        <a class="source-link" href="https://247wallst.com/investing/2026/05/30/xlre-hits-11-gain-this-year-can-the-payout-stay-safe/?.tsrc=rss" target="_blank" rel="noopener">🔗 XLRE Hits 11% Gain This Year; Can the Payout Stay Safe</a>
+        <a class="source-link" href="https://www.fool.com/investing/2026/05/30/this-unstoppable-vanguard-etf-has-more-than-double/?.tsrc=rss" target="_blank" rel="noopener">🔗 This Unstoppable Vanguard ETF Has More Than Doubled the S&amp;P 500 in the</a>
+        <a class="source-link" href="https://www.fool.com/investing/2026/05/30/can-sandisk-become-a-1-trillion-company-in-5-years/?.tsrc=rss" target="_blank" rel="noopener">🔗 Can Sandisk Become a $1 Trillion Company in 5 Years?</a>
+      </div>
+      <h3 style="margin-top:16px">CNBC – Top News</h3>
+      <div class="source-grid">
+        <a class="source-link" href="https://www.cnbc.com/2026/05/30/oil-exports-through-hormuz-might-not-return-to-levels-before-iran-war.html" target="_blank" rel="noopener">🔗 Oil exports through the Strait of Hormuz might not return to levels se</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/30/iran-war-inequality-affordability-ceasefire-analysis.html" target="_blank" rel="noopener">🔗 Analysis: An end to the Iran war may be just the beginning of a new er</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/30/spacex-ipo-invest.html" target="_blank" rel="noopener">🔗 Two months, $2.6 billion: How NASA ETF turned SpaceX IPO access into a</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/30/meta-struggled-selling-anything-other-than-ads-will-ai-be-different.html" target="_blank" rel="noopener">🔗 Meta has struggled at selling anything other than ads. Will AI be diff</a>
+      </div>
+      <h3 style="margin-top:16px">CNBC – Finance</h3>
+      <div class="source-grid">
+        <a class="source-link" href="https://www.cnbc.com/2026/05/30/south-asian-music-warner-records-5-junction.html" target="_blank" rel="noopener">🔗 Investors and labels are buying into the growing South Asian music bus</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/30/gen-z-movie-theaters.html" target="_blank" rel="noopener">🔗 Will Gen Z be the generation to revive moviegoing?</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/29/replimune-resubmit-melanoma-drug-fda-makary.html" target="_blank" rel="noopener">🔗 Replimune to resubmit twice-rejected drug for approval after FDA shake</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/29/asian-foods-beyond-ethnic-aisle.html" target="_blank" rel="noopener">🔗 &#x27;Our flavors are on the shelf&#x27;: The evolution of Asian grocery beyond </a>
+      </div>
+      <h3 style="margin-top:16px">MarketWatch – Top Stories</h3>
+      <div class="source-grid">
+        <a class="source-link" href="https://www.marketwatch.com/story/in-america-big-techs-ai-data-centers-come-first-and-your-community-will-be-last-to-know-06a3fce4?mod=mw_rss_topstories" target="_blank" rel="noopener">🔗 As Big Tech’s power demand surges, data centers bring utilities a huge</a>
+        <a class="source-link" href="https://www.marketwatch.com/story/chinas-next-export-shock-walks-on-two-legs-and-costs-less-than-a-used-car-f0becf3f?mod=mw_rss_topstories" target="_blank" rel="noopener">🔗 China’s next export shock walks on two legs — and costs less than a us</a>
+        <a class="source-link" href="https://www.marketwatch.com/story/why-double-digit-earnings-growth-wont-stop-the-next-bear-market-791ae3ef?mod=mw_rss_topstories" target="_blank" rel="noopener">🔗 Why double-digit earnings growth won’t stop the next bear market</a>
+        <a class="source-link" href="https://www.marketwatch.com/story/why-america-is-losing-the-ai-productivity-war-to-3-5-million-chinese-stem-graduates-4ffeb298?mod=mw_rss_topstories" target="_blank" rel="noopener">🔗 America is losing the AI productivity war to 3.5 million Chinese STEM </a>
+      </div>
+      <h3 style="margin-top:16px">CNBC – Economy</h3>
+      <div class="source-grid">
+        <a class="source-link" href="https://www.cnbc.com/2026/05/29/energy-costs-inflation-iran-war-trump.html" target="_blank" rel="noopener">🔗 Iran war cost: Average U.S. household paying $450 more on gas and ener</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/29/iran-war-inflation-stagflation-eu-ecb-consumer-prices.html" target="_blank" rel="noopener">🔗 How the ‘double scar’ of past inflation woes and geopolitical shocks a</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/28/core-inflation-hit-an-annual-rate-of-3point3percent-in-april-as-expected-feds-preferred-gauge-shows-.html" target="_blank" rel="noopener">🔗 Core inflation hit an annual rate of 3.3% in April, as expected, Fed’s</a>
+        <a class="source-link" href="https://www.cnbc.com/2026/05/28/goolsbee-iran-energy-inflation-asia-stagflation-shock-ai-artificial-intelligence-jobs.html" target="_blank" rel="noopener">🔗 Energy inflation has been more persistent than expected, Fed&#x27;s Goolsbe</a>
+      </div>
+      <h3 style="margin-top:16px">Bing News</h3>
+      <div class="source-grid">
+        <span class="source-link" style="opacity:0.6">Viral trends 2026: From AI fruits to billion-view beauty, what’s trend</span>
+        <span class="source-link" style="opacity:0.6">Dunkin’ owner Inspire Brands plows ahead with IPO plans despite rising</span>
+        <span class="source-link" style="opacity:0.6">Laut Adidas: Diese 4 neuen Sneaker kommen 2025!</span>
+        <span class="source-link" style="opacity:0.6">Weder Adidas noch Nike: Diese Sneaker tragen alle im Herbst 2024 statt</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>💬 Reddit Buzz</h2>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin:-8px 0 16px">Top posts by score across financial subreddits.</p>
+      <table>
+        <tr><th>Subreddit</th><th>Score</th><th>Sentiment</th><th>Title</th></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>💰 Cost & Token Usage</h2>
+      <div class="cost-grid">
+        <div class="cost-card"><div class="cost-card-label">API Calls</div><div class="cost-card-value">30</div></div>
+        <div class="cost-card"><div class="cost-card-label">Input Tokens</div><div class="cost-card-value">10,915</div></div>
+        <div class="cost-card"><div class="cost-card-label">Output Tokens</div><div class="cost-card-value">11,900</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Cost</div><div class="cost-card-value">$0.0</div></div>
+      </div>
+      <table style="margin-top:16px">
+        <tr><th>Provider</th><th>Calls</th><th>Cost</th></tr>
+        <tr><td>Claude</td><td>30</td><td>$0.0</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>✅ Verification Checklist</h2>
+      <table>
+        <tr><th>#</th><th>Goal</th><th>Status</th><th>Count</th></tr>
+        <tr><td>1</td><td>Collect Reddit posts</td><td style="font-size:1.1rem">❌</td><td>0</td></tr>
+        <tr><td>2</td><td>Collect news articles</td><td style="font-size:1.1rem">✅</td><td>145</td></tr>
+        <tr><td>3</td><td>Extract trending topics</td><td style="font-size:1.1rem">✅</td><td>12</td></tr>
+        <tr><td>4</td><td>Map topics to stocks</td><td style="font-size:1.1rem">✅</td><td>25</td></tr>
+        <tr><td>5</td><td>Fetch live stock prices</td><td style="font-size:1.1rem">✅</td><td>25</td></tr>
+        <tr><td>6</td><td>Analyze sentiment</td><td style="font-size:1.1rem">✅</td><td>145</td></tr>
+        <tr><td>7</td><td>Compute composite scores</td><td style="font-size:1.1rem">✅</td><td>25</td></tr>
+        <tr><td>8</td><td>Rank top-10 picks</td><td style="font-size:1.1rem">✅</td><td>10</td></tr>
+        <tr><td>9</td><td>Generate visualizations</td><td style="font-size:1.1rem">✅</td><td>3</td></tr>
+        <tr><td>10</td><td>Generate reports</td><td style="font-size:1.1rem">✅</td><td>2</td></tr>
+      </table>
+      <p style="margin-top:12px;font-weight:700">9/10 goals achieved.</p>
+    </div>
+    <div class="card">
+      <h2>ℹ️ Methodology</h2>
+      <ol style="line-height:1.9">
+        <li><strong>Data collection:</strong> Reddit posts, financial RSS feeds (Yahoo Finance, Reuters, CNBC, MarketWatch, Seeking Alpha, BBC, Al Jazeera), Twitter/X, YouTube, and AI agent swarm.</li>
+        <li><strong>Topic extraction:</strong> Keyword-frequency analysis with engagement weighting and editorial weighting.</li>
+        <li><strong>Stock mapping:</strong> Curated keyword→ticker dictionary covering 300+ phrases across all major sectors.</li>
+        <li><strong>Sentiment analysis:</strong> VADER (local, free) for social-media text; optional LLM for nuanced financial sentiment.</li>
+        <li><strong>Composite scoring:</strong> Weighted formula combining news volume (25%), social engagement (25%), sentiment (25%), price momentum (15%), and AI rationale (10%).</li>
+        <li><strong>Trend detection:</strong> Z-score spike detection vs 7-day rolling average.</li>
+      </ol>
+      <p style="color:var(--text-muted);font-size:0.9rem">Run this pipeline daily with GitHub Actions or local scheduler — see <code>config.yaml</code>.</p>
+    </div>
+    <div class="footer">
+      <p>Generated by AI Market-to-Invest Pipeline</p>
+      <p>2026-05-30 19:30 UTC</p>
+    </div>
+  </div>
+  <script>
+
+function toggleTicker(card) {
+  card.classList.toggle('collapsed');
+  // Animate sparkline when card opens
+  if (!card.classList.contains('collapsed')) {
+    const svg = card.querySelector('.sparkline-svg');
+    if (svg) {
+      const path = svg.querySelector('.sparkline-path');
+      if (path) {
+        path.style.strokeDashoffset = '1000';
+        setTimeout(function() {
+          path.style.strokeDashoffset = '0';
+        }, 100);
+      }
+    }
+  }
+}
+
+// Animate score bars and sparklines on load
+document.addEventListener('DOMContentLoaded', function() {
+  const bars = document.querySelectorAll('.score-bar-fill');
+  bars.forEach(function(bar) {
+    const target = bar.getAttribute('data-width');
+    bar.style.width = '0%';
+    setTimeout(function() {
+      bar.style.width = target + '%';
+    }, 100);
+  });
+
+  // Animate sentiment markers
+  const markers = document.querySelectorAll('.sentiment-marker');
+  markers.forEach(function(marker) {
+    const target = marker.getAttribute('data-pos');
+    marker.style.left = '50%';
+    setTimeout(function() {
+      marker.style.left = target + '%';
+    }, 200);
+  });
+
+  // Animate visible sparklines on load
+  const sparklines = document.querySelectorAll('.sparkline-path');
+  sparklines.forEach(function(path) {
+    path.style.strokeDashoffset = '1000';
+    setTimeout(function() {
+      path.style.strokeDashoffset = '0';
+    }, 300);
+  });
+});
+
+  </script>
+</body>
+</html>

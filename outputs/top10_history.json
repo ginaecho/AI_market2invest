@@ -1,0 +1,84 @@
+{
+  "2026-05-30": [
+    {
+      "ticker": "LNG",
+      "rank": 1,
+      "composite_score": 72.5,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "ticker": "TSM",
+      "rank": 2,
+      "composite_score": 68.16,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "ticker": "DE",
+      "rank": 3,
+      "composite_score": 67.72,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "BP",
+      "rank": 4,
+      "composite_score": 64.06,
+      "price": 41.87,
+      "change_pct": 0.67,
+      "sentiment_label": "bullish"
+    },
+    {
+      "ticker": "ZS",
+      "rank": 5,
+      "composite_score": 62.26,
+      "price": 139.73,
+      "change_pct": 7.45,
+      "sentiment_label": "bullish"
+    },
+    {
+      "ticker": "CAT",
+      "rank": 6,
+      "composite_score": 57.96,
+      "price": 875.87,
+      "change_pct": -1.33,
+      "sentiment_label": "bullish"
+    },
+    {
+      "ticker": "XOM",
+      "rank": 7,
+      "composite_score": 57.25,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "LMT",
+      "rank": 8,
+      "composite_score": 55.07,
+      "price": 530.45,
+      "change_pct": -1.26,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "NEE",
+      "rank": 9,
+      "composite_score": 55.02,
+      "price": 87.01,
+      "change_pct": -0.28,
+      "sentiment_label": "bearish"
+    },
+    {
+      "ticker": "CVX",
+      "rank": 10,
+      "composite_score": 54.93,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    }
+  ]
+}

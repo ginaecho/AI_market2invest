@@ -1,0 +1,455 @@
+{
+  "CVX": [
+    {
+      "date": "2026-05-24",
+      "composite_score": 62.9,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-25",
+      "composite_score": 59.9,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-26",
+      "composite_score": 56.9,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-27",
+      "composite_score": 53.9,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-28",
+      "composite_score": 50.9,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-29",
+      "composite_score": 47.9,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-30",
+      "composite_score": 54.93,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "XOM": [
+    {
+      "date": "2026-05-24",
+      "composite_score": 65.2,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-25",
+      "composite_score": 62.2,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-26",
+      "composite_score": 59.2,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-27",
+      "composite_score": 56.2,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-28",
+      "composite_score": 53.2,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-29",
+      "composite_score": 50.2,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    },
+    {
+      "date": "2026-05-30",
+      "composite_score": 57.25,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "LMT": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 55.07,
+      "price": 530.45,
+      "change_pct": -1.26,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "GLD": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 53.35,
+      "price": 417.12,
+      "change_pct": 1.05,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "RTX": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 52.74,
+      "price": 179.66,
+      "change_pct": 0.39,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "DJT": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 52.51,
+      "price": 9.31,
+      "change_pct": 4.61,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "TLT": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 45.43,
+      "price": 85.76,
+      "change_pct": 0.02,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "NVDA": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 54.65,
+      "price": 211.14,
+      "change_pct": -1.45,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "AMZN": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 49.03,
+      "price": 270.64,
+      "change_pct": -1.23,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "TSM": [
+    {
+      "date": "2026-05-24",
+      "composite_score": 56.7,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-25",
+      "composite_score": 53.7,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-26",
+      "composite_score": 50.7,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-27",
+      "composite_score": 47.7,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-28",
+      "composite_score": 44.7,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-29",
+      "composite_score": 41.7,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-30",
+      "composite_score": 68.16,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    }
+  ],
+  "AAPL": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 48.15,
+      "price": 312.06,
+      "change_pct": -0.14,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "PANW": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 48.69,
+      "price": 281.69,
+      "change_pct": 9.28,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "CAT": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 57.96,
+      "price": 875.87,
+      "change_pct": -1.33,
+      "sentiment_label": "bullish"
+    }
+  ],
+  "CRWD": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 48.69,
+      "price": 731.0,
+      "change_pct": 8.94,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "FTNT": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 48.61,
+      "price": 137.97,
+      "change_pct": 6.38,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "DE": [
+    {
+      "date": "2026-05-24",
+      "composite_score": 71.0,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-25",
+      "composite_score": 68.0,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-26",
+      "composite_score": 65.0,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-27",
+      "composite_score": 62.0,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-28",
+      "composite_score": 59.0,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-29",
+      "composite_score": 56.0,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "bearish"
+    },
+    {
+      "date": "2026-05-30",
+      "composite_score": 67.72,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "ZS": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 62.26,
+      "price": 139.73,
+      "change_pct": 7.45,
+      "sentiment_label": "bullish"
+    }
+  ],
+  "LNG": [
+    {
+      "date": "2026-05-24",
+      "composite_score": 84.7,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "date": "2026-05-25",
+      "composite_score": 81.7,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "date": "2026-05-26",
+      "composite_score": 78.7,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "date": "2026-05-27",
+      "composite_score": 75.7,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "date": "2026-05-28",
+      "composite_score": 72.7,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "date": "2026-05-29",
+      "composite_score": 69.7,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "date": "2026-05-30",
+      "composite_score": 72.5,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    }
+  ],
+  "BP": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 64.06,
+      "price": 41.87,
+      "change_pct": 0.67,
+      "sentiment_label": "bullish"
+    }
+  ],
+  "BEP": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 46.28,
+      "price": 37.09,
+      "change_pct": 0.47,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "ENPH": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 47.2,
+      "price": 68.36,
+      "change_pct": -1.64,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "NEE": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 55.02,
+      "price": 87.01,
+      "change_pct": -0.28,
+      "sentiment_label": "bearish"
+    }
+  ],
+  "MCD": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 41.08,
+      "price": 279.2,
+      "change_pct": 0.44,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "USO": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 43.46,
+      "price": 129.09,
+      "change_pct": -1.29,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "XLE": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 43.15,
+      "price": 56.29,
+      "change_pct": -1.16,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "TSLA": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 43.78,
+      "price": 435.79,
+      "change_pct": -1.43,
+      "sentiment_label": "neutral"
+    }
+  ],
+  "NOC": [
+    {
+      "date": "2026-05-30",
+      "composite_score": 42.17,
+      "price": 563.68,
+      "change_pct": 0.78,
+      "sentiment_label": "neutral"
+    }
+  ]
+}

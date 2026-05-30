@@ -7,10 +7,10 @@ Two-tier approach
 1. **Keyword dictionary** (always available):  A curated mapping from common
    words / phrases to ticker symbols, grouped by sector theme.
 
-2. **OpenAI enrichment** (optional):  When ``OPENAI_API_KEY`` is set, the
-   top topics and most-relevant news headlines are fed to GPT to produce
-   richer, narrative-style investment reasoning.  The keyword mapping is
-   still used to bootstrap ticker candidates.
+2. **OpenAI / Kimi enrichment** (optional):  When ``OPENAI_API_KEY`` or
+   ``KIMI_API_KEY`` is set, the top topics and most-relevant news headlines
+   are fed to an LLM to produce richer, narrative-style investment reasoning.
+   The keyword mapping is still used to bootstrap ticker candidates.
 """
 
 from __future__ import annotations
@@ -263,6 +263,16 @@ KEYWORD_TICKER_MAP: Dict[str, List[str]] = {
     "ups": ["UPS"],
     "freight": ["FDX", "UPS", "ZIM"],
     "shipping": ["ZIM", "MATX"],
+    # ── Trump / Geopolitics ──────────────────────────────────────────────
+    "trump": ["DJT", "XOM", "CVX", "LMT", "RTX", "GLD", "TLT"],
+    "tariff": ["WMT", "AMZN", "CAT", "DE"],
+    "trade war": ["AAPL", "NVDA", "TSM", "CAT", "DE"],
+    "sanctions": ["XOM", "CVX", "BP", "GLD"],
+    "middle east": ["XOM", "CVX", "LNG", "USO"],
+    "ukraine": ["LMT", "RTX", "NOC", "GD"],
+    "israel": ["LMT", "RTX", "NOC"],
+    "taiwan": ["TSM", "NVDA", "AMD"],
+    "china trade": ["AAPL", "AMZN", "NVDA", "TSM"],
 }
 
 # Sector-level themes mapped to sector ETFs
@@ -285,6 +295,8 @@ def map_topics_to_stocks(
     topics: List[Tuple[str, int]],
     posts: List[Dict[str, Any]] | None = None,
     articles: List[Dict[str, Any]] | None = None,
+    tweets: List[Dict[str, Any]] | None = None,
+    videos: List[Dict[str, Any]] | None = None,
 ) -> Dict[str, Dict[str, Any]]:
     """
     Map extracted topic keywords to stock tickers.
@@ -293,20 +305,27 @@ def map_topics_to_stocks(
         topics:   Output of topic_extractor.extract — (keyword, score) pairs.
         posts:    Raw Reddit posts (used for building evidence snippets).
         articles: Raw news articles (used for building evidence snippets).
+        tweets:   Raw tweets.
+        videos:   Raw YouTube videos.
 
     Returns:
         Dict keyed by ticker symbol.  Each value contains::
 
             {
                 "ticker": "NVDA",
-                "score":  750,           # cumulative topic score
-                "reasons": [...],        # matched topics/themes
-                "news_snippets": [...],  # up to 3 supporting headlines
-                "reddit_snippets": [...] # up to 3 supporting titles
+                "score":  750,
+                "reasons": [...],
+                "news_snippets": [...],
+                "reddit_snippets": [...],
+                "twitter_snippets": [...],
+                "youtube_snippets": [...],
+                "news_count": 3,
             }
     """
     posts = posts or []
     articles = articles or []
+    tweets = tweets or []
+    videos = videos or []
 
     ticker_data: Dict[str, Dict[str, Any]] = {}
 
@@ -326,14 +345,28 @@ def map_topics_to_stocks(
                     "reasons": [],
                     "news_snippets": [],
                     "reddit_snippets": [],
+                    "twitter_snippets": [],
+                    "youtube_snippets": [],
+                    "news_sources": [],
+                    "reddit_sources": [],
+                    "twitter_sources": [],
+                    "youtube_sources": [],
+                    "news_count": 0,
                 }
             ticker_data[ticker]["score"] += score
             ticker_data[ticker]["reasons"].append(f"'{keyword}' (score {score})")
 
-    # Add supporting evidence snippets
+    # Aggregate news count per ticker
+    for article in articles:
+        text = (article.get("title", "") + " " + article.get("summary", "")).lower()
+        for ticker, data in ticker_data.items():
+            if ticker.lower() in text:
+                data["news_count"] = data.get("news_count", 0) + 1
+
+    # Add supporting evidence snippets + source URLs
     for ticker, data in ticker_data.items():
         ticker_lower = ticker.lower()
-        # Find news articles that mention the ticker or related keywords
+        # News
         for article in articles:
             text = (article.get("title", "") + " " + article.get("summary", "")).lower()
             if ticker_lower in text or any(
@@ -342,12 +375,14 @@ def map_topics_to_stocks(
                 if "'" in reason
             ):
                 snippet = article.get("title", "")
+                url = article.get("url", "")
                 if snippet and snippet not in data["news_snippets"]:
                     data["news_snippets"].append(snippet)
-                if len(data["news_snippets"]) >= 3:
+                    data["news_sources"].append({"title": snippet, "url": url})
+                if len(data["news_snippets"]) >= 5:
                     break
 
-        # Find Reddit posts that mention the ticker or related keywords
+        # Reddit
         for post in posts:
             text = (post.get("title", "") + " " + post.get("text", "")).lower()
             if ticker_lower in text or any(
@@ -356,41 +391,65 @@ def map_topics_to_stocks(
                 if "'" in reason
             ):
                 snippet = post.get("title", "")
+                url = post.get("url", "")
                 if snippet and snippet not in data["reddit_snippets"]:
                     data["reddit_snippets"].append(snippet)
-                if len(data["reddit_snippets"]) >= 3:
+                    data["reddit_sources"].append({"title": snippet, "url": url})
+                if len(data["reddit_snippets"]) >= 5:
+                    break
+
+        # Twitter
+        for tweet in tweets:
+            text = tweet.get("text", "").lower()
+            if ticker_lower in text:
+                snippet = tweet.get("text", "")[:200]
+                url = tweet.get("url", "")
+                if snippet and snippet not in data["twitter_snippets"]:
+                    data["twitter_snippets"].append(snippet)
+                    data["twitter_sources"].append({"text": snippet, "url": url})
+                if len(data["twitter_snippets"]) >= 5:
+                    break
+
+        # YouTube
+        for video in videos:
+            text = (video.get("title", "") + " " + video.get("description", "")).lower()
+            if ticker_lower in text:
+                snippet = video.get("title", "")
+                url = video.get("url", "")
+                if snippet and snippet not in data["youtube_snippets"]:
+                    data["youtube_snippets"].append(snippet)
+                    data["youtube_sources"].append({"title": snippet, "url": url})
+                if len(data["youtube_snippets"]) >= 5:
                     break
 
     return ticker_data
 
 
-def enrich_with_openai(
+# ---------------------------------------------------------------------------
+# Generic LLM enrichment
+# ---------------------------------------------------------------------------
+
+def enrich_with_llm(
     ticker_data: Dict[str, Dict[str, Any]],
     topics: List[Tuple[str, int]],
     articles: List[Dict[str, Any]],
+    tracker: Any = None,
+    config: Dict[str, Any] | None = None,
 ) -> Dict[str, Dict[str, Any]]:
     """
-    Use OpenAI GPT to produce narrative investment rationale for each ticker.
+    Use the configured LLM to produce narrative investment rationale for each ticker.
 
-    Only called when the ``OPENAI_API_KEY`` environment variable is set.
+    Only runs when an API key is available for the configured provider.
     Augments each ticker entry with an ``"ai_analysis"`` key.
-
-    Returns the enriched ticker_data dict (in-place modification too).
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        logger.info("OPENAI_API_KEY not set — skipping OpenAI enrichment")
+    from src.utils.llm_client import get_llm_config, is_llm_configured, llm_chat
+
+    if not is_llm_configured(config):
+        logger.info("No LLM API key configured — skipping LLM ticker enrichment")
         return ticker_data
 
-    try:
-        from openai import OpenAI  # type: ignore[import]
-    except ImportError:
-        logger.warning("openai package not installed — skipping enrichment")
-        return ticker_data
+    cfg = get_llm_config(config)
 
-    client = OpenAI(api_key=api_key)
-
-    # Build a compact context for the model
     top_topics = [f"{kw} ({s})" for kw, s in topics[:20]]
     top_news = [a.get("title", "") for a in articles[:15] if a.get("title")]
     top_tickers = sorted(ticker_data.values(), key=lambda x: x["score"], reverse=True)[:15]
@@ -410,23 +469,52 @@ def enrich_with_openai(
         "is an object with fields: signal, thesis, catalysts (list), risks (list)."
     )
 
+    content = llm_chat(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        config=config,
+        response_format_json=True,
+        temperature=0.3,
+        max_tokens=2000,
+        tracker=tracker,
+        stage="llm_enrichment",
+        description=f"{cfg['provider']} ticker enrichment",
+    )
+
+    if not content:
+        return ticker_data
+
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.3,
-            max_tokens=2000,
-        )
-        analysis: Dict[str, Any] = json.loads(response.choices[0].message.content)
+        analysis: Dict[str, Any] = json.loads(content)
         for ticker, info in analysis.items():
             if ticker in ticker_data:
                 ticker_data[ticker]["ai_analysis"] = info
-        logger.info("OpenAI enrichment complete for %d tickers", len(analysis))
-    except Exception as exc:
-        logger.warning("OpenAI enrichment failed: %s", exc)
+        logger.info("LLM enrichment complete for %d tickers", len(analysis))
+    except json.JSONDecodeError:
+        logger.warning("Failed to parse LLM ticker enrichment JSON")
 
     return ticker_data
+
+
+# ---------------------------------------------------------------------------
+# Backward-compatible aliases
+# ---------------------------------------------------------------------------
+
+def enrich_with_openai(
+    ticker_data: Dict[str, Dict[str, Any]],
+    topics: List[Tuple[str, int]],
+    articles: List[Dict[str, Any]],
+    tracker: Any = None,
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Backward-compatible alias that forces the **OpenAI** provider.
+
+    New code should call :func:`enrich_with_llm` directly.
+    """
+    return enrich_with_llm(
+        ticker_data=ticker_data,
+        topics=topics,
+        articles=articles,
+        tracker=tracker,
+        config={"provider": "openai"},
+    )

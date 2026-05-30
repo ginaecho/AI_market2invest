@@ -18,9 +18,9 @@ env/
 ENV/
 
 # Generated reports (keep the placeholder)
-outputs/*.md
-outputs/*.html
-outputs/*.json
+# NOTE: *.md, *.html, and *.json are intentionally tracked for GitHub Pages
+# and sparkline history.  PNG charts are kept ignored to prevent git bloat.
+outputs/*.png
 
 # Environment / secrets
 .env
