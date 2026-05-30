@@ -1,11 +1,11 @@
-name: Market Analysis Pipeline
+name: Deploy Report to Cloudflare Pages
 
 on:
-  # Daily at 13:00 UTC (9am ET / 6am PT)
+  # Daily at 13:00 UTC
   schedule:
     - cron: "0 13 * * *"
 
-  # Allow manual runs from the GitHub Actions UI
+  # Manual trigger
   workflow_dispatch:
     inputs:
       reddit_sort:
@@ -21,18 +21,9 @@ on:
         required: false
         default: "20"
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "market-analysis"
-  cancel-in-progress: false
-
 jobs:
-  analyze:
-    name: Collect & Analyze Market Data
+  build-and-deploy:
+    name: Build Report & Deploy to Cloudflare
     runs-on: ubuntu-latest
 
     steps:
@@ -51,7 +42,7 @@ jobs:
           pip install -r requirements.txt
           python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
 
-      # Restore ticker history from previous runs so sparklines accumulate
+      # Restore ticker history so sparklines accumulate across runs
       - name: Restore ticker history
         uses: actions/cache@v4
         with:
@@ -94,17 +85,18 @@ jobs:
           latest_html=$(ls -t outputs/report_*.html | head -n 1)
           if [ -n "$latest_html" ]; then
             cp "$latest_html" _site/index.html
-            echo "Deployed: $latest_html"
+            echo "Deploying: $latest_html"
           else
-            echo "No HTML report found — skipping Pages deployment"
+            echo "No HTML report found"
             exit 1
           fi
 
-      - name: Upload Pages artifact
-        if: success()
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
-          path: _site
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=ai-market-report --branch=main
 
       # Save ticker history for next run
       - name: Save ticker history
@@ -112,16 +104,3 @@ jobs:
         with:
           path: outputs/ticker_score_history.json
           key: ticker-history-${{ github.run_id }}
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: analyze
-    runs-on: ubuntu-latest
-    if: success()
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
