@@ -1,7 +1,7 @@
 name: Market Analysis Pipeline
 
 on:
-  # Daily at 13:00 UTC (9am ET / 6am PT) — morning market analysis
+  # Daily at 13:00 UTC (9am ET / 6am PT)
   schedule:
     - cron: "0 13 * * *"
 
@@ -21,18 +21,11 @@ on:
         required: false
         default: "20"
 
-# Permissions needed for committing history + deploying Pages
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
-  actions: read
 
-# Opt into Node.js 24 early (silences deprecation warning for actions)
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-# Allow only one run at a time (prevents history corruption)
 concurrency:
   group: "market-analysis"
   cancel-in-progress: false
@@ -45,9 +38,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # Fetch full history so git commits work cleanly
-          fetch-depth: 0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -59,30 +49,31 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Download NLTK data needed by VADER
           python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
+
+      # Restore ticker history from previous runs so sparklines accumulate
+      - name: Restore ticker history
+        uses: actions/cache@v4
+        with:
+          path: outputs/ticker_score_history.json
+          key: ticker-history-${{ github.run_id }}
+          restore-keys: |
+            ticker-history-
 
       - name: Run pipeline
         env:
-          # ── LLM Provider (set ONE in GitHub Secrets) ──
-          # Generic fallback
           LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ secrets.LLM_MODEL }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
-          # Provider-specific keys (used as fallback if LLM_API_KEY not set)
           KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          # ── Optional source credentials ──
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
-          TIKTOK_API_KEY: ${{ secrets.TIKTOK_API_KEY }}
-          META_APP_ID: ${{ secrets.META_APP_ID }}
-          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
         run: |
           python run_pipeline.py \
             --sort "${{ github.event.inputs.reddit_sort || 'hot' }}" \
@@ -90,56 +81,16 @@ jobs:
             --news-limit "${{ github.event.inputs.news_limit || '20' }}" \
             --log-level INFO
 
-      - name: Upload full outputs as artifact
+      - name: Upload outputs as artifact
         uses: actions/upload-artifact@v4
         with:
           name: market-report-${{ github.run_number }}-${{ github.run_attempt }}
           path: outputs/
           retention-days: 30
 
-      # Only commit the lightweight history files (JSON) so that sparklines
-      # accumulate across runs.  PNG charts are excluded to prevent git bloat.
-      - name: Commit ticker history back to repository
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/*.json
-          git add outputs/*.md
-          git add outputs/*.html
-          # Only commit if there are changes
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "📊 Auto: market analysis $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
-            # Retry in case another push lands between fetch/rebase and push
-            for attempt in 1 2 3; do
-              git fetch origin main
-              git rebase origin/main || {
-                git rebase --abort
-                exit 1
-              }
-
-              if git push origin HEAD:main; then
-                break
-              fi
-
-              if [ "$attempt" -eq 3 ]; then
-                echo "Push failed after ${attempt} attempts."
-                exit 1
-              fi
-
-              echo "Push rejected; retrying after syncing with origin/main ..."
-              sleep 5
-            done
-          fi
-
-      # ── GitHub Pages deployment ──
-      # Makes the latest HTML report viewable at:
-      # https://yourname.github.io/AI_market2invest/
       - name: Prepare Pages directory
         run: |
           mkdir -p _site
-          # Copy the latest HTML report as index.html
           latest_html=$(ls -t outputs/report_*.html | head -n 1)
           if [ -n "$latest_html" ]; then
             cp "$latest_html" _site/index.html
@@ -148,13 +99,19 @@ jobs:
             echo "No HTML report found — skipping Pages deployment"
             exit 1
           fi
-          # Also copy CSS/JS assets if they were external (they're inline, so not needed)
 
       - name: Upload Pages artifact
         if: success()
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+
+      # Save ticker history for next run
+      - name: Save ticker history
+        uses: actions/cache@v4
+        with:
+          path: outputs/ticker_score_history.json
+          key: ticker-history-${{ github.run_id }}
 
   deploy:
     name: Deploy to GitHub Pages
