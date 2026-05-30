@@ -1,9 +1,9 @@
 name: Market Analysis Pipeline
 
 on:
-  # Run every weekday at 14:00 UTC (09:00 ET / market open)
+  # Daily at 13:00 UTC (9am ET / 6am PT) — morning market analysis
   schedule:
-    - cron: "0 14 * * 1-5"
+    - cron: "0 13 * * *"
 
   # Allow manual runs from the GitHub Actions UI
   workflow_dispatch:
@@ -16,50 +16,135 @@ on:
         description: "Max posts per subreddit"
         required: false
         default: "25"
+      news_limit:
+        description: "Max articles per news feed"
+        required: false
+        default: "20"
+
+# Permissions needed for committing history + deploying Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Opt into Node.js 24 early (silences deprecation warning for actions)
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Allow only one run at a time (prevents history corruption)
+concurrency:
+  group: "market-analysis"
+  cancel-in-progress: false
 
 jobs:
   analyze:
     name: Collect & Analyze Market Data
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # needed to commit the report back to the repo
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Fetch full history so git commits work cleanly
+          fetch-depth: 0
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Download NLTK data needed by VADER
+          python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
 
       - name: Run pipeline
         env:
+          # ── LLM Provider (set ONE in GitHub Secrets) ──
+          # Generic fallback
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          # Provider-specific keys (used as fallback if LLM_API_KEY not set)
+          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # ── Optional source credentials ──
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+          TIKTOK_API_KEY: ${{ secrets.TIKTOK_API_KEY }}
+          META_APP_ID: ${{ secrets.META_APP_ID }}
+          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
         run: |
           python run_pipeline.py \
             --sort "${{ github.event.inputs.reddit_sort || 'hot' }}" \
             --reddit-limit "${{ github.event.inputs.reddit_limit || '25' }}" \
+            --news-limit "${{ github.event.inputs.news_limit || '20' }}" \
             --log-level INFO
 
-      - name: Upload report as artifact
+      - name: Upload full outputs as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: investment-report-${{ github.run_number }}
+          name: market-report-${{ github.run_number }}-${{ github.run_attempt }}
           path: outputs/
           retention-days: 30
 
-      - name: Commit report back to repository
+      # Only commit the lightweight history files (JSON) so that sparklines
+      # accumulate across runs.  PNG charts are excluded to prevent git bloat.
+      - name: Commit ticker history back to repository
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/
-          # Only commit if there is something new
-          git diff --cached --quiet || git commit -m "chore: add market analysis report [skip ci]"
-          git push
+          git add outputs/*.json
+          git add outputs/*.md
+          git add outputs/*.html
+          # Only commit if there are changes
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "📊 Auto: market analysis $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+            git push
+          fi
+
+      # ── GitHub Pages deployment ──
+      # Makes the latest HTML report viewable at:
+      # https://yourname.github.io/AI_market2invest/
+      - name: Prepare Pages directory
+        run: |
+          mkdir -p _site
+          # Copy the latest HTML report as index.html
+          latest_html=$(ls -t outputs/report_*.html | head -n 1)
+          if [ -n "$latest_html" ]; then
+            cp "$latest_html" _site/index.html
+            echo "Deployed: $latest_html"
+          else
+            echo "No HTML report found — skipping Pages deployment"
+            exit 1
+          fi
+          # Also copy CSS/JS assets if they were external (they're inline, so not needed)
+
+      - name: Upload Pages artifact
+        if: success()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: analyze
+    runs-on: ubuntu-latest
+    if: success()
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
