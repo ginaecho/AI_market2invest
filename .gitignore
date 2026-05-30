@@ -1,0 +1,47 @@
+# Python artefacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg-link
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Generated reports (keep the placeholder)
+outputs/*.md
+outputs/*.html
+outputs/*.json
+
+# Environment / secrets
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# mypy
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/

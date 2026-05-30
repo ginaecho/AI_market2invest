@@ -1,0 +1,43 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Pipeline configuration
+# ──────────────────────────────────────────────────────────────────────────────
+
+reddit:
+  # Subreddits to monitor (case-insensitive)
+  subreddits:
+    - stocks
+    - investing
+    - wallstreetbets
+    - finance
+    - economics
+    - StockMarket
+    - options
+    - SecurityAnalysis
+    - dividends
+    - ETFs
+  # Sort order: hot | top | new | rising
+  sort: hot
+  # Maximum posts to fetch per subreddit
+  limit_per_subreddit: 25
+
+news:
+  # Maximum articles to fetch per RSS feed
+  limit_per_feed: 20
+  # Add or remove feeds as needed: { "Display Name": "rss_url" }
+  feeds:
+    Yahoo Finance – Top Stories: "https://finance.yahoo.com/rss/topstories"
+    Reuters – Business: "https://feeds.reuters.com/reuters/businessNews"
+    CNBC – Top News: "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+    CNBC – Finance: "https://www.cnbc.com/id/10001147/device/rss/rss.html"
+    MarketWatch – Top Stories: "http://feeds.marketwatch.com/marketwatch/topstories/"
+    Investopedia – News: "https://www.investopedia.com/feedbuilder/feed/getfeed/?feedName=rss_headline"
+    Seeking Alpha – Market News: "https://seekingalpha.com/market_news.xml"
+    CNBC – Economy: "https://www.cnbc.com/id/20910258/device/rss/rss.html"
+
+analysis:
+  # Number of top trending topics to surface
+  top_topics: 30
+
+output:
+  # Directory (relative to repo root) where reports are saved
+  directory: outputs

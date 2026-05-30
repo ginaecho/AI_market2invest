@@ -1,0 +1,65 @@
+name: Market Analysis Pipeline
+
+on:
+  # Run every weekday at 14:00 UTC (09:00 ET / market open)
+  schedule:
+    - cron: "0 14 * * 1-5"
+
+  # Allow manual runs from the GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      reddit_sort:
+        description: "Reddit sort order (hot|top|new|rising)"
+        required: false
+        default: "hot"
+      reddit_limit:
+        description: "Max posts per subreddit"
+        required: false
+        default: "25"
+
+jobs:
+  analyze:
+    name: Collect & Analyze Market Data
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # needed to commit the report back to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          python run_pipeline.py \
+            --sort "${{ github.event.inputs.reddit_sort || 'hot' }}" \
+            --reddit-limit "${{ github.event.inputs.reddit_limit || '25' }}" \
+            --log-level INFO
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: investment-report-${{ github.run_number }}
+          path: outputs/
+          retention-days: 30
+
+      - name: Commit report back to repository
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/
+          # Only commit if there is something new
+          git diff --cached --quiet || git commit -m "chore: add market analysis report [skip ci]"
+          git push
