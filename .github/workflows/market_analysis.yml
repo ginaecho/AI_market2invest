@@ -111,10 +111,26 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "📊 Auto: market analysis $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
-            # Fetch and rebase in case another push happened during this run
-            git fetch origin
-            git rebase origin/main || (git rebase --abort && true)
-            git push origin HEAD:main
+            # Retry in case another push lands between fetch/rebase and push
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main || {
+                git rebase --abort
+                exit 1
+              }
+
+              if git push origin HEAD:main; then
+                break
+              fi
+
+              if [ "$attempt" -eq 3 ]; then
+                echo "Push failed after ${attempt} attempts."
+                exit 1
+              fi
+
+              echo "Push rejected; retrying after syncing with origin/main ..."
+              sleep 5
+            done
           fi
 
       # ── GitHub Pages deployment ──
