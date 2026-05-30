@@ -111,6 +111,8 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "📊 Auto: market analysis $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+            # Pull first in case another push happened during this run
+            git pull --rebase origin main || true
             git push
           fi
 
