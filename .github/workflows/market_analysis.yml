@@ -26,6 +26,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  actions: read
 
 # Opt into Node.js 24 early (silences deprecation warning for actions)
 env:
