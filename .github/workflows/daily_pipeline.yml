@@ -118,6 +118,9 @@ jobs:
     needs: analyze
     runs-on: ubuntu-latest
     if: success()
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
