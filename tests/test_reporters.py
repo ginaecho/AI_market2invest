@@ -88,7 +88,7 @@ SAMPLE_TICKER_DATA_WITH_AI = {
         "ai_analysis": {
             "signal": "BUY",
             "thesis": "Strong AI GPU demand driving record earnings growth.",
-            "catalysts": ["AI capex surge", "Data centre expansion"],
+            "catalysts": ["AI capex surge", "Data center expansion"],
             "risks": ["Competition from AMD", "Supply constraints"],
         },
     },

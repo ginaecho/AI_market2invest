@@ -41,7 +41,7 @@ SAMPLE_POSTS = [
 SAMPLE_ARTICLES = [
     {
         "title": "Nvidia reports record quarterly earnings on AI chip demand",
-        "summary": "Nvidia's data centre revenue surges 200% year-on-year.",
+        "summary": "Nvidia's data center revenue surges 200% year-on-year.",
         "source": "Reuters",
         "url": "https://reuters.com/nvidia",
     },
