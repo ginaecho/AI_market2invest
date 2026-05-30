@@ -1,0 +1,64 @@
+name: Deploy to GitHub Pages
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: |
+          pip install -r requirements.txt
+          python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
+      - uses: actions/cache@v4
+        with:
+          path: outputs/ticker_score_history.json
+          key: ticker-history-${{ github.run_id }}
+          restore-keys: ticker-history-
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+        run: python run_pipeline.py --log-level INFO
+      - name: Prepare Pages site
+        run: |
+          mkdir -p _site
+          latest=$(ls -t outputs/report_*.html | head -n 1)
+          cp "$latest" _site/index.html
+          cp outputs/*.png _site/ 2>/dev/null || true
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Save history cache
+        uses: actions/cache@v4
+        with:
+          path: outputs/ticker_score_history.json
+          key: ticker-history-${{ github.run_id }}
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
