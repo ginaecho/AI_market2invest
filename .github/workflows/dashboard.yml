@@ -1,6 +1,8 @@
-name: Report
+name: Dashboard
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: "0 13 * * *"
   workflow_dispatch:
@@ -10,34 +12,52 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+
       - run: |
           pip install -r requirements.txt
           python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
+
       - uses: actions/cache@v4
         with:
           path: |
             outputs/ticker_score_history.json
             outputs/top10_history.json
-          key: ticker-history
+          key: ticker-history-${{ github.run_id }}
+          restore-keys: ticker-history-
+
       - name: Run pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
         run: python run_pipeline.py --log-level INFO
+
       - name: Build site
         run: |
           mkdir -p _site
-          cp $(ls -t outputs/dashboard_*.html | head -n 1) _site/index.html
+          if [ -f outputs/dashboard_latest.html ]; then
+            cp outputs/dashboard_latest.html _site/index.html
+            echo "Deployed dashboard_latest.html"
+          else
+            echo "ERROR: dashboard_latest.html not found"
+            ls -la outputs/
+            exit 1
+          fi
           cp outputs/*.png _site/ 2>/dev/null || true
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

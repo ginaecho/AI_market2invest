@@ -408,6 +408,10 @@ def run(
                 verification=verification,
                 output_path=out_dir / f"dashboard_{run_ts.strftime('%Y%m%d_%H%M%S')}.html",
             )
+            # Also create a predictable latest symlink for the deploy workflow
+            if dashboard_path and dashboard_path.exists():
+                latest = out_dir / "dashboard_latest.html"
+                latest.write_text(dashboard_path.read_text(encoding="utf-8"), encoding="utf-8")
         except Exception as exc:
             logger.warning("HTML dashboard generation failed: %s", exc)
 
