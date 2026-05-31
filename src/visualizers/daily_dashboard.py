@@ -22,6 +22,34 @@ logger = logging.getLogger(__name__)
 
 _HISTORY_FILE = Path("outputs") / "ticker_score_history.json"
 
+# Metadata for pipeline-generated PNG charts (Analytics tab)
+_CHART_CATALOG: Dict[str, Dict[str, str]] = {
+    "score_trend.png": {
+        "id": "score-trend",
+        "icon": "📈",
+        "title": "Score Trend",
+        "description": "Composite score history for top-ranked picks across recent pipeline runs.",
+    },
+    "sentiment_pie.png": {
+        "id": "sentiment",
+        "icon": "🎭",
+        "title": "Sentiment Distribution",
+        "description": "Bullish, neutral, and bearish breakdown among today's top-10 investment picks.",
+    },
+    "sector_heatmap.png": {
+        "id": "sectors",
+        "icon": "🗺️",
+        "title": "Sector Heatmap",
+        "description": "Which sectors and themes are driving the highest composite scores right now.",
+    },
+    "wordcloud.png": {
+        "id": "wordcloud",
+        "icon": "☁️",
+        "title": "Trending Word Cloud",
+        "description": "Most frequent terms from news and social sources in this run.",
+    },
+}
+
 # ── CSS ──────────────────────────────────────────────────────────────────────
 
 _CSS = """
@@ -338,6 +366,300 @@ th { background: rgba(0,0,0,0.03); font-weight: 600; }
   color: var(--text-muted);
   margin-top: 8px;
 }
+
+/* ── Main tab navigation ──────────────────────────────────────────────────── */
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-header p {
+  color: var(--text-muted);
+  margin: 4px 0 16px;
+}
+
+.main-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: var(--card-bg);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  width: fit-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.main-tab {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+}
+
+.main-tab:hover {
+  color: var(--primary);
+  background: rgba(9, 132, 227, 0.06);
+}
+
+.main-tab.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(9, 132, 227, 0.35);
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Analytics gallery ────────────────────────────────────────────────────── */
+.analytics-hero {
+  background: linear-gradient(135deg, rgba(9,132,227,0.12) 0%, rgba(0,184,148,0.08) 100%);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(9, 132, 227, 0.15);
+}
+
+.analytics-hero h2 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+}
+
+.analytics-hero p {
+  margin: 0;
+  color: var(--text-muted);
+  max-width: 640px;
+  line-height: 1.5;
+}
+
+.analytics-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  min-height: 72vh;
+}
+
+@media (max-width: 900px) {
+  .analytics-layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}
+
+.analytics-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analytics-thumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+  width: 100%;
+}
+
+.analytics-thumb:hover {
+  border-color: var(--primary);
+  transform: translateX(4px);
+}
+
+.analytics-thumb.active {
+  border-color: var(--primary);
+  background: rgba(9, 132, 227, 0.08);
+  box-shadow: 0 4px 16px rgba(9, 132, 227, 0.15);
+}
+
+.analytics-thumb-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+}
+
+.analytics-thumb-text strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.92rem;
+  margin-bottom: 2px;
+}
+
+.analytics-thumb-text span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.analytics-stage {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 72vh;
+}
+
+.analytics-stage-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.analytics-stage-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.analytics-stage-desc {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.analytics-expand-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+
+.analytics-expand-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.analytics-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.02);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 480px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.analytics-viewport img {
+  max-width: 100%;
+  max-height: min(68vh, 900px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease;
+}
+
+.analytics-viewport:hover img {
+  transform: scale(1.01);
+}
+
+.analytics-panel {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+}
+
+.analytics-panel.active {
+  display: flex;
+}
+
+/* ── Lightbox ─────────────────────────────────────────────────────────────── */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+}
+
+.lightbox.open {
+  display: flex;
+}
+
+.lightbox img {
+  max-width: 96vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lightbox-close:hover {
+  background: rgba(255,255,255,0.28);
+}
+
+.lightbox-caption {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
 """
 
 _JS = """
@@ -437,6 +759,54 @@ document.addEventListener('DOMContentLoaded', function() {
     var first = frames['1D'] ? '1D' : Object.keys(frames)[0];
     if (first) drawMarketChart(ticker, first);
   });
+});
+
+function switchMainTab(tabId) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.querySelectorAll('.main-tab').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  var panel = document.getElementById('tab-' + tabId);
+  var btn = document.querySelector('.main-tab[data-tab="' + tabId + '"]');
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectAnalyticsChart(chartId) {
+  document.querySelectorAll('.analytics-thumb').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  document.querySelectorAll('.analytics-panel').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  var thumb = document.getElementById('thumb-' + chartId);
+  var panel = document.getElementById('panel-' + chartId);
+  if (thumb) thumb.classList.add('active');
+  if (panel) panel.classList.add('active');
+}
+
+function openLightbox(src, caption) {
+  var lb = document.getElementById('lightbox');
+  var img = document.getElementById('lightbox-img');
+  var cap = document.getElementById('lightbox-caption');
+  if (!lb || !img) return;
+  img.src = src;
+  if (cap) cap.textContent = caption || '';
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  var lb = document.getElementById('lightbox');
+  if (lb) lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
 });
 """
 
@@ -713,6 +1083,110 @@ def _render_ticker_charts(ticker: str, history: List[Dict[str, Any]]) -> str:
     return "\n".join(parts)
 
 
+def _resolve_chart_entries(chart_paths: List[Path]) -> List[Dict[str, str]]:
+    """Map chart file paths to catalog metadata for the Analytics tab."""
+    entries: List[Dict[str, str]] = []
+    seen: set[str] = set()
+    for chart in chart_paths:
+        if not chart or not chart.exists() or not chart.name:
+            continue
+        name = chart.name
+        meta = _CHART_CATALOG.get(name, {})
+        chart_id = meta.get("id") or name.replace(".", "-").replace("_", "-")
+        if chart_id in seen:
+            continue
+        seen.add(chart_id)
+        entries.append(
+            {
+                "id": chart_id,
+                "src": name,
+                "icon": meta.get("icon", "📊"),
+                "title": meta.get("title", name.replace("_", " ").replace(".png", "").title()),
+                "description": meta.get(
+                    "description",
+                    "Pipeline visualization generated from the latest market intelligence run.",
+                ),
+            }
+        )
+    return entries
+
+
+def _render_analytics_tab(chart_entries: List[Dict[str, str]]) -> str:
+    """Render the Analytics tab with sidebar navigation and large chart viewport."""
+    if not chart_entries:
+        return (
+            '  <div id="tab-analytics" class="tab-panel">'
+            '    <div class="card"><p style="color:var(--text-muted)">No charts were generated in this run.</p></div>'
+            "  </div>"
+        )
+
+    first_id = chart_entries[0]["id"]
+    parts: List[str] = [
+        '  <div id="tab-analytics" class="tab-panel">',
+        '    <div class="analytics-hero">',
+        '      <h2>📊 Market Analytics</h2>',
+        '      <p>Full-size visualizations from this pipeline run. Select a chart on the left, '
+        "click the image or <strong>Expand</strong> for fullscreen view.</p>",
+        "    </div>",
+        '    <div class="analytics-layout">',
+        '      <div class="analytics-sidebar">',
+    ]
+
+    for entry in chart_entries:
+        active = "active" if entry["id"] == first_id else ""
+        desc_short = entry["description"]
+        if len(desc_short) > 72:
+            desc_short = desc_short[:72] + "…"
+        parts.append(
+            f'        <button type="button" id="thumb-{_h(entry["id"])}" '
+            f'class="analytics-thumb {active}" '
+            f'onclick="selectAnalyticsChart(\'{_h(entry["id"])}\')">'
+            f'          <span class="analytics-thumb-icon">{entry["icon"]}</span>'
+            f'          <span class="analytics-thumb-text">'
+            f'            <strong>{_h(entry["title"])}</strong>'
+            f'            <span>{_h(desc_short)}</span>'
+            f"          </span>"
+            f"        </button>"
+        )
+
+    parts += ['      </div>', '      <div class="analytics-stage">']
+
+    for entry in chart_entries:
+        active = "active" if entry["id"] == first_id else ""
+        src = _h(entry["src"])
+        title = _h(entry["title"])
+        desc = _h(entry["description"])
+        parts += [
+            f'        <div id="panel-{_h(entry["id"])}" class="analytics-panel {active}">',
+            f'          <div class="analytics-stage-header">',
+            f"            <div>",
+            f'              <h3 class="analytics-stage-title">{entry["icon"]} {title}</h3>',
+            f'              <p class="analytics-stage-desc">{desc}</p>',
+            f"            </div>",
+            f'            <button type="button" class="analytics-expand-btn" '
+            f"onclick=\"openLightbox('{src}', '{title}')\">⛶ Expand</button>",
+            f"          </div>",
+            f'          <div class="analytics-viewport" '
+            f"onclick=\"openLightbox('{src}', '{title}')\" "
+            f'title="Click to view fullscreen">',
+            f'            <img src="{src}" alt="{title}" loading="lazy">',
+            f"          </div>",
+            f"        </div>",
+        ]
+
+    parts += [
+        "      </div>",
+        "    </div>",
+        "  </div>",
+        '  <div id="lightbox" class="lightbox" onclick="closeLightbox()">',
+        '    <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="Close">×</button>',
+        '    <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()">',
+        '    <div id="lightbox-caption" class="lightbox-caption"></div>',
+        "  </div>",
+    ]
+    return "\n".join(parts)
+
+
 # ── Main generator ───────────────────────────────────────────────────────────
 
 
@@ -752,6 +1226,10 @@ def generate(
     market_charts: Dict[str, Any] = market_data.get("charts") or {}
     etoro_enabled = bool(market_data.get("etoro_enabled"))
 
+    etoro_enabled = bool(market_data.get("etoro_enabled"))
+    chart_entries = _resolve_chart_entries(chart_paths)
+    has_analytics = bool(chart_entries)
+
     parts: List[str] = [
         "<!DOCTYPE html>",
         '<html lang="en">',
@@ -764,8 +1242,24 @@ def generate(
         '  </style>',
         '</head>',
         '<body>',
-        f'  <h1 id="top">📈 Market Intelligence Dashboard</h1>',
-        f'  <p>Generated: <strong>{_h(ts)}</strong></p>',
+        '  <div class="dashboard-header">',
+        f'    <h1 id="top">📈 Market Intelligence Dashboard</h1>',
+        f'    <p>Generated: <strong>{_h(ts)}</strong></p>',
+        '    <nav class="main-tabs" role="tablist">',
+        '      <button type="button" class="main-tab active" data-tab="overview" '
+        'onclick="switchMainTab(\'overview\')" role="tab" aria-selected="true">'
+        '🏠 Overview</button>',
+    ]
+    if has_analytics:
+        parts.append(
+            '      <button type="button" class="main-tab" data-tab="analytics" '
+            'onclick="switchMainTab(\'analytics\')" role="tab" aria-selected="false">'
+            f'📊 Analytics ({len(chart_entries)})</button>'
+        )
+    parts += [
+        '    </nav>',
+        '  </div>',
+        '  <div id="tab-overview" class="tab-panel active">',
         '  <div class="card">',
         '    <h2>📊 Top-10 Investment Picks</h2>',
         '    <table>',
@@ -798,19 +1292,6 @@ def generate(
         '    </table>',
         '  </div>',
     ]
-
-    # Charts
-    valid_charts = [c for c in chart_paths if c and c.exists() and c.name]
-    if valid_charts:
-        parts += ['  <div class="grid">']
-        for chart in valid_charts:
-            rel = chart.name
-            parts += [
-                '    <div class="card">',
-                f'      <img src="{_h(rel)}" class="chart" alt="{_h(rel)}">',
-                '    </div>',
-            ]
-        parts += ["  </div>"]
 
     # ── Per-ticker detail cards ────────────────────────────────────────────
     if ranked:
@@ -984,6 +1465,19 @@ def generate(
             '  </div>',
         ]
 
+    # Close overview tab
+    parts += [
+        '  <div class="card">',
+        '    <p><em>This dashboard is generated automatically for informational purposes only. '
+        'It does not constitute financial advice.</em></p>',
+        '  </div>',
+        '  </div>',  # end #tab-overview
+    ]
+
+    # Analytics tab (charts moved out of overview)
+    if has_analytics:
+        parts.append(_render_analytics_tab(chart_entries))
+
     # Embedded market chart JSON for client-side rendering
     if market_charts:
         parts += [
@@ -994,12 +1488,8 @@ def generate(
             "  </script>",
         ]
 
-    # Footer
+    # Footer scripts
     parts += [
-        '  <div class="card">',
-        '    <p><em>This dashboard is generated automatically for informational purposes only. '
-        'It does not constitute financial advice.</em></p>',
-        '  </div>',
         '  <script>',
         _JS,
         '  </script>',
