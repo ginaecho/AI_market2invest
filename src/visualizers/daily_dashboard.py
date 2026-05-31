@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
-_HISTORY_FILE = Path("outputs") / "top10_history.json"
+_HISTORY_FILE = Path("outputs") / "ticker_score_history.json"
 
 # ── CSS ──────────────────────────────────────────────────────────────────────
 
@@ -310,28 +310,31 @@ def _badge_class(signal: str) -> str:
 
 
 def _load_history() -> Dict[str, List[Dict[str, Any]]]:
-    """Load top-10 score history from JSON."""
+    """Load per-ticker score history from JSON.
+
+    The file format is {ticker: [ {date, composite_score, price, ...}, ... ]}
+    as written by top10_ranker.save_ticker_history().
+    """
     if not _HISTORY_FILE.exists():
         return {}
     try:
         with _HISTORY_FILE.open("r", encoding="utf-8") as f:
             data = json.load(f)
-        # data is {date: [ {ticker, rank, composite_score, ...}, ... ]}
-        # Convert to per-ticker list
+        # data is {ticker: [ {date, composite_score, ...}, ... ]}
         ticker_history: Dict[str, List[Dict[str, Any]]] = {}
-        for date_str, entries in sorted(data.items()):
-            for entry in entries:
-                ticker = entry.get("ticker")
-                if ticker:
-                    ticker_history.setdefault(ticker, [])
-                    ticker_history[ticker].append({
-                        "date": date_str,
-                        "score": entry.get("composite_score", 0) or 0,
-                        "price": entry.get("price"),
-                        "rank": entry.get("rank"),
-                    })
-        # Sort each ticker's history by date
-        for ticker in ticker_history:
+        for ticker, entries in data.items():
+            if not isinstance(entries, list):
+                continue
+            ticker_history[ticker] = [
+                {
+                    "date": e.get("date", ""),
+                    "score": e.get("composite_score", 0) or 0,
+                    "price": e.get("price"),
+                    "rank": None,
+                }
+                for e in entries
+                if e.get("date")
+            ]
             ticker_history[ticker].sort(key=lambda x: x["date"])
         return ticker_history
     except Exception as exc:
