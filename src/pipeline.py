@@ -17,6 +17,8 @@ from src.collectors import (
     news_collector,
     reddit_collector,
     stock_price_collector,
+    etoro_collector,
+    market_chart_collector,
     twitter_collector,
     youtube_collector,
     tiktok_collector,
@@ -326,6 +328,17 @@ def run(
     top10_ranker.save_history(ranked)
     top10_ranker.save_ticker_history(ticker_data)
 
+    # Live market panels (eToro quotes + intraday/daily OHLC for dashboard)
+    top_tickers = [item["ticker"] for item in ranked]
+    etoro_quotes: Dict[str, Any] = {}
+    if etoro_collector.is_configured() and top_tickers:
+        logger.info("Fetching eToro live quotes for top-%d …", len(top_tickers))
+        etoro_quotes = etoro_collector.collect_quotes(top_tickers)
+    market_charts: Dict[str, Any] = {}
+    if top_tickers:
+        logger.info("Fetching intraday/daily chart data for top-%d …", len(top_tickers))
+        market_charts = market_chart_collector.collect(top_tickers)
+
     spiking_topics = trend_detector.detect(topics)
 
     # ── Stage 7: Visualisations ──────────────────────────────────────────
@@ -406,6 +419,11 @@ def run(
                 chart_paths=chart_paths,
                 cost=actual_cost,
                 verification=verification,
+                market_data={
+                    "quotes": etoro_quotes,
+                    "charts": market_charts,
+                    "etoro_enabled": etoro_collector.is_configured(),
+                },
                 output_path=out_dir / f"dashboard_{run_ts.strftime('%Y%m%d_%H%M%S')}.html",
             )
             # Also create a predictable latest symlink for the deploy workflow

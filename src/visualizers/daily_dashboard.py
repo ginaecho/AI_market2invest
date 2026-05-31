@@ -272,6 +272,72 @@ th { background: rgba(0,0,0,0.03); font-weight: 600; }
   text-decoration: none;
 }
 .back-to-top:hover { text-decoration: underline; }
+
+/* ── eToro-style market panel ───────────────────────────────────────────── */
+.market-panel {
+  background: rgba(0,0,0,0.02);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 12px 0 20px;
+}
+
+.market-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.market-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--border);
+}
+
+.market-price-block { flex: 1; min-width: 180px; }
+
+.market-last {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.market-change.up { color: var(--success); }
+.market-change.down { color: var(--danger); }
+
+.market-bid-ask {
+  display: flex;
+  gap: 16px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.market-bid-ask strong { color: var(--text); }
+
+.market-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin-top: 8px;
+}
+
+.market-canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.015);
+}
+
+.market-source {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
 """
 
 _JS = """
@@ -290,6 +356,88 @@ function showRange(ticker, range) {
   var activeBtn = document.getElementById('btn-' + ticker + '-' + range);
   if (activeBtn) activeBtn.classList.add('active');
 }
+
+function showMarketRange(ticker, range) {
+  document.querySelectorAll('.mkt-btn-' + ticker).forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  var activeBtn = document.getElementById('mkt-btn-' + ticker + '-' + range);
+  if (activeBtn) activeBtn.classList.add('active');
+  drawMarketChart(ticker, range);
+}
+
+function drawMarketChart(ticker, range) {
+  var canvas = document.getElementById('market-canvas-' + ticker);
+  if (!canvas || !window.MARKET_CHARTS || !window.MARKET_CHARTS[ticker]) return;
+  var candles = window.MARKET_CHARTS[ticker][range];
+  if (!candles || !candles.length) return;
+
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  var W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  var padL = 48, padR = 12, padT = 14, padB = 28;
+  var lows = candles.map(function(c) { return c.l; });
+  var highs = candles.map(function(c) { return c.h; });
+  var minP = Math.min.apply(null, lows);
+  var maxP = Math.max.apply(null, highs);
+  var pad = (maxP - minP) * 0.06 || 1;
+  minP -= pad; maxP += pad;
+  var n = candles.length;
+  var slot = (W - padL - padR) / n;
+  var bodyW = Math.max(2, slot * 0.55);
+
+  function y(price) {
+    return padT + (maxP - price) / (maxP - minP) * (H - padT - padB);
+  }
+
+  candles.forEach(function(c, i) {
+    var cx = padL + slot * i + slot / 2;
+    var up = c.c >= c.o;
+    var color = up ? '#00b894' : '#d63031';
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx, y(c.h));
+    ctx.lineTo(cx, y(c.l));
+    ctx.stroke();
+    var top = y(Math.max(c.o, c.c));
+    var bot = y(Math.min(c.o, c.c));
+    var h = Math.max(1, bot - top);
+    ctx.fillRect(cx - bodyW / 2, top, bodyW, h);
+  });
+
+  ctx.fillStyle = '#636e72';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText(maxP.toFixed(2), padL - 6, y(maxP) + 3);
+  ctx.fillText(minP.toFixed(2), padL - 6, y(minP) + 3);
+  if (candles.length >= 2) {
+    var fmt = function(ts) {
+      var d = new Date(ts * 1000);
+      return (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+        String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    };
+    ctx.textAlign = 'center';
+    ctx.fillText(fmt(candles[0].t), padL + slot/2, H - 6);
+    ctx.fillText(fmt(candles[n-1].t), padL + slot*(n-1) + slot/2, H - 6);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!window.MARKET_CHARTS) return;
+  Object.keys(window.MARKET_CHARTS).forEach(function(ticker) {
+    var frames = window.MARKET_CHARTS[ticker];
+    var first = frames['1D'] ? '1D' : Object.keys(frames)[0];
+    if (first) drawMarketChart(ticker, first);
+  });
+});
 """
 
 
@@ -427,66 +575,140 @@ def _sparkline_svg(
     )
 
 
+def _render_market_panel(
+    ticker: str,
+    quote: Dict[str, Any] | None,
+    charts: Dict[str, List[Dict[str, Any]]] | None,
+    etoro_enabled: bool,
+) -> str:
+    """eToro-style live quote header + intraday candlestick chart."""
+    if not charts:
+        if etoro_enabled and quote and not quote.get("error"):
+            return _render_quote_only(ticker, quote)
+        return (
+            '<p style="color:var(--text-muted);font-size:0.85rem">'
+            "Market chart data unavailable for this ticker."
+            "</p>"
+        )
+
+    from src.collectors.market_chart_collector import TIMEFRAMES
+
+    available = [lbl for lbl in TIMEFRAMES if lbl in charts and charts[lbl]]
+    if not available:
+        return '<p style="color:var(--text-muted);font-size:0.85rem">No candle data for this symbol.</p>'
+
+    default_range = "1D" if "1D" in available else available[0]
+    parts: List[str] = ['<div class="market-panel">']
+
+    if quote and not quote.get("error"):
+        parts.append(_render_quote_header(ticker, quote))
+    elif quote and quote.get("error"):
+        parts.append(
+            f'<p style="color:var(--text-muted);font-size:0.82rem">eToro: {_h(quote["error"])}</p>'
+        )
+
+    parts.append('<div class="range-buttons">')
+    for label in available:
+        active = "active" if label == default_range else ""
+        parts.append(
+            f'<button id="mkt-btn-{_h(ticker)}-{_h(label)}" '
+            f'class="range-btn mkt-btn-{_h(ticker)} {active}" '
+            f'onclick="showMarketRange(\'{_h(ticker)}\', \'{_h(label)}\')">{_h(label)}</button>'
+        )
+    parts.append("</div>")
+
+    parts.append(
+        f'<div class="market-canvas-wrap">'
+        f'<canvas id="market-canvas-{_h(ticker)}" class="market-canvas" '
+        f'aria-label="Price chart for {_h(ticker)}"></canvas>'
+        f"</div>"
+    )
+
+    source_bits = ["Yahoo Finance OHLC"]
+    if quote and not quote.get("error"):
+        source_bits.insert(0, "eToro bid/ask")
+    parts.append(f'<p class="market-source">Data: {" · ".join(source_bits)}</p>')
+    parts.append("</div>")
+    return "\n".join(parts)
+
+
+def _render_quote_header(ticker: str, quote: Dict[str, Any]) -> str:
+    name = quote.get("display_name") or ticker
+    last = quote.get("last") or quote.get("ask") or quote.get("bid")
+    change = quote.get("change_pct", 0) or 0
+    change_cls = "up" if change >= 0 else "down"
+    sign = "+" if change >= 0 else ""
+    logo = quote.get("logo_url") or ""
+    bid = quote.get("bid")
+    ask = quote.get("ask")
+    exchange = quote.get("exchange") or ""
+
+    logo_html = (
+        f'<img class="market-logo" src="{_h(logo)}" alt="{_h(name)}" loading="lazy">'
+        if logo
+        else ""
+    )
+    bid_ask = ""
+    if bid is not None and ask is not None:
+        spread = round(ask - bid, 4) if ask and bid else 0
+        bid_ask = (
+            f'<div class="market-bid-ask">'
+            f"<span>Bid <strong>{bid}</strong></span>"
+            f"<span>Ask <strong>{ask}</strong></span>"
+            f"<span>Spread <strong>{spread}</strong></span>"
+            f"</div>"
+        )
+
+    exchange_suffix = f" · {_h(exchange)}" if exchange else ""
+    return (
+        f'<div class="market-header">'
+        f"{logo_html}"
+        f'<div class="market-price-block">'
+        f'<div style="font-size:0.85rem;color:var(--text-muted)">{_h(name)} · {_h(ticker)}{exchange_suffix}</div>'
+        f'<div class="market-last">{last if last is not None else "—"}</div>'
+        f'<div class="market-change {change_cls}">{sign}{change}% today</div>'
+        f"{bid_ask}"
+        f"</div></div>"
+    )
+
+
+def _render_quote_only(ticker: str, quote: Dict[str, Any]) -> str:
+    return f'<div class="market-panel">{_render_quote_header(ticker, quote)}</div>'
+
+
 def _render_ticker_charts(ticker: str, history: List[Dict[str, Any]]) -> str:
-    """Render range selector buttons + sparklines for a ticker."""
+    """Render range selector buttons + sparklines for composite score history."""
     if not history or len(history) < 2:
-        return '<p style="color:var(--text-muted);font-size:0.85rem">Not enough history for trend chart.</p>'
+        return (
+            '<p style="color:var(--text-muted);font-size:0.85rem">'
+            "Not enough daily runs yet for score trend (needs 2+ pipeline runs)."
+            "</p>"
+        )
 
     total = len(history)
-
-    # Define ranges and how many points they show
     ranges = [
-        ("1M", min(total, 30)),
+        ("30D", min(total, 30)),
         ("10D", min(total, 10)),
         ("7D", min(total, 7)),
-        ("1D", min(total, 1)),
     ]
 
-    # Sub-daily ranges (not available with daily collection)
-    sub_daily = ["1H", "30M", "10M", "5M", "1M"]
-
     parts: List[str] = ['<div class="range-buttons">']
-
-    # Daily ranges
     for label, count in ranges:
-        if count < 1:
+        if count < 2:
             continue
-        active = "active" if label == "1M" else ""
-        subset = history[-count:]
+        active = "active" if label == "30D" else ""
         parts.append(
             f'<button id="btn-{_h(ticker)}-{label}" class="range-btn btn-{_h(ticker)} {active}" '
             f'onclick="showRange(\'{_h(ticker)}\', \'{label}\')">{label}</button>'
         )
+    parts.append("</div>")
 
-    # Sub-daily placeholders
-    for label in sub_daily:
-        parts.append(
-            f'<button class="range-btn disabled" title="Requires real-time data feeds" '
-            f'onclick="alert(&quot;Sub-daily trends require real-time data collection. &quot; '
-            f'+ &quot;Current pipeline collects data once daily. &quot; '
-            f'+ &quot;To enable 1H–1M charts, integrate a real-time stock price API.&quot;)">'
-            f'{label}</button>'
-        )
-
-    parts.append('</div>')
-
-    # Render sparklines for each daily range
     for label, count in ranges:
-        if count < 1:
+        if count < 2:
             continue
         subset = history[-count:]
-        visible = label == "1M"
+        visible = label == "30D"
         parts.append(_sparkline_svg(ticker, subset, label, visible))
-
-    # Sub-daily placeholder message
-    parts.append(
-        '<div class="limitation-note">'
-        '💡 <strong>Sub-daily charts (1H → 1M):</strong> Not available. '
-        'This pipeline collects data once per day. To show hourly/minute-level trends, '
-        'you would need to integrate a real-time stock price API (e.g., Yahoo Finance intraday, '
-        'Alpaca, or Polygon.io) and run the pipeline every minute instead of daily.'
-        '</div>'
-    )
 
     return "\n".join(parts)
 
@@ -503,6 +725,7 @@ def generate(
     chart_paths: List[Path],
     cost: Dict[str, Any] | None = None,
     verification: List[Dict[str, Any]] | None = None,
+    market_data: Dict[str, Any] | None = None,
     output_path: Path | None = None,
 ) -> Path:
     """
@@ -524,6 +747,10 @@ def generate(
 
     # Load historical data for sparklines
     ticker_history = _load_history()
+    market_data = market_data or {}
+    etoro_quotes: Dict[str, Any] = market_data.get("quotes") or {}
+    market_charts: Dict[str, Any] = market_data.get("charts") or {}
+    etoro_enabled = bool(market_data.get("etoro_enabled"))
 
     parts: List[str] = [
         "<!DOCTYPE html>",
@@ -616,8 +843,19 @@ def generate(
                 f'    </div>',
             ]
 
-            # Trend chart with range selector
-            parts.append(f'    <h3>📈 Trend</h3>')
+            # Live market chart (eToro-style)
+            parts.append(f'    <h3>💹 Market</h3>')
+            parts.append(
+                _render_market_panel(
+                    ticker,
+                    etoro_quotes.get(ticker.upper()) or etoro_quotes.get(ticker),
+                    market_charts.get(ticker.upper()) or market_charts.get(ticker),
+                    etoro_enabled,
+                )
+            )
+
+            # Composite score trend
+            parts.append(f'    <h3>📈 Score Trend (daily runs)</h3>')
             parts.append(_render_ticker_charts(ticker, history))
 
             # Sentiment
@@ -744,6 +982,16 @@ def generate(
             '    </table>',
             f'    <p><strong>{passed}/{len(verification)} goals achieved.</strong></p>',
             '  </div>',
+        ]
+
+    # Embedded market chart JSON for client-side rendering
+    if market_charts:
+        parts += [
+            "  <script>",
+            "window.MARKET_CHARTS = ",
+            json.dumps(market_charts),
+            ";",
+            "  </script>",
         ]
 
     # Footer

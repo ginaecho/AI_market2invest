@@ -1,1 +1,108 @@
-{"2026-05-28": [{"ticker": "AAPL", "rank": 2, "composite_score": 80, "price": 192}], "2026-05-29": [{"ticker": "AAPL", "rank": 1, "composite_score": 85, "price": 195}], "2026-05-30": [{"ticker": "AAPL", "rank": 1, "composite_score": 88, "price": 198}]}
+{
+  "2026-05-28": [
+    {
+      "ticker": "AAPL",
+      "rank": 2,
+      "composite_score": 80,
+      "price": 192
+    }
+  ],
+  "2026-05-29": [
+    {
+      "ticker": "AAPL",
+      "rank": 1,
+      "composite_score": 85,
+      "price": 195
+    }
+  ],
+  "2026-05-30": [
+    {
+      "ticker": "AAPL",
+      "rank": 1,
+      "composite_score": 88,
+      "price": 198
+    }
+  ],
+  "2026-05-31": [
+    {
+      "ticker": "LNG",
+      "rank": 1,
+      "composite_score": 79.37,
+      "price": 224.86,
+      "change_pct": -2.05,
+      "sentiment_label": "bullish"
+    },
+    {
+      "ticker": "NVDA",
+      "rank": 2,
+      "composite_score": 70.45,
+      "price": 211.14,
+      "change_pct": -1.45,
+      "sentiment_label": "bullish"
+    },
+    {
+      "ticker": "DE",
+      "rank": 3,
+      "composite_score": 70.13,
+      "price": 542.18,
+      "change_pct": 0.59,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "TSM",
+      "rank": 4,
+      "composite_score": 69.93,
+      "price": 418.45,
+      "change_pct": -1.51,
+      "sentiment_label": "bearish"
+    },
+    {
+      "ticker": "CAT",
+      "rank": 5,
+      "composite_score": 66.45,
+      "price": 875.87,
+      "change_pct": -1.33,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "XOM",
+      "rank": 6,
+      "composite_score": 63.15,
+      "price": 145.26,
+      "change_pct": -1.16,
+      "sentiment_label": "bearish"
+    },
+    {
+      "ticker": "CVX",
+      "rank": 7,
+      "composite_score": 60.83,
+      "price": 182.46,
+      "change_pct": -0.31,
+      "sentiment_label": "bearish"
+    },
+    {
+      "ticker": "LMT",
+      "rank": 8,
+      "composite_score": 55.45,
+      "price": 530.45,
+      "change_pct": -1.26,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "GLD",
+      "rank": 9,
+      "composite_score": 55.29,
+      "price": 417.12,
+      "change_pct": 1.05,
+      "sentiment_label": "neutral"
+    },
+    {
+      "ticker": "SQ",
+      "rank": 10,
+      "composite_score": 54.18,
+      "price": null,
+      "change_pct": 0.0,
+      "sentiment_label": "bullish"
+    }
+  ]
+}
