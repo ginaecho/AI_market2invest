@@ -1,22 +1,494 @@
 """
-Daily dashboard — generates a single HTML file embedding all charts and tables.
+Daily dashboard — generates a single HTML file embedding all charts, tables,
+per-ticker detail cards with trend sparklines, and time-range selectors.
 
 SECURITY NOTES
 --------------
 • Purely local file generation.
-• No external network calls; all assets are inline or local file references.
+• No external network calls; all assets are inline.
 • No user input is rendered without HTML escaping.
 """
 
 from __future__ import annotations
 
 import html
+import json
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
+
+_HISTORY_FILE = Path("outputs") / "top10_history.json"
+
+# ── CSS ──────────────────────────────────────────────────────────────────────
+
+_CSS = """
+:root {
+  --bg: #f5f6fa;
+  --card-bg: #ffffff;
+  --text: #2d3436;
+  --text-muted: #636e72;
+  --border: #dfe6e9;
+  --primary: #0984e3;
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --danger: #d63031;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --radius: 12px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --card-bg: #1a1d24;
+    --text: #e9ecef;
+    --text-muted: #adb5bd;
+    --border: #2d333b;
+    --primary: #74b9ff;
+    --success: #55efc4;
+    --warning: #ffeaa7;
+    --danger: #ff7675;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1, h2, h3 { color: var(--text); }
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th { background: rgba(0,0,0,0.03); font-weight: 600; }
+
+.score { font-weight: bold; color: var(--primary); }
+
+.bullish { color: var(--success); }
+.bearish { color: var(--danger); }
+.neutral { color: var(--warning); }
+
+/* ── Ticker links ───────────────────────────────────────────────────────── */
+.ticker-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+.ticker-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Ticker detail card ─────────────────────────────────────────────────── */
+.ticker-detail {
+  scroll-margin-top: 20px;
+}
+
+.ticker-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ticker-detail-symbol {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.ticker-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-buy  { background: rgba(0,184,148,0.12); color: var(--success); }
+.badge-hold { background: rgba(253,203,110,0.2); color: #d4a017; }
+.badge-watch{ background: rgba(116,185,255,0.12); color: var(--primary); }
+.badge-sell { background: rgba(214,48,49,0.12); color: var(--danger); }
+
+/* ── Sparkline ──────────────────────────────────────────────────────────── */
+.sparkline-wrap {
+  background: rgba(0,0,0,0.02);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.sparkline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sparkline-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sparkline-svg {
+  width: 100%;
+  height: 90px;
+  overflow: visible;
+}
+
+.sparkline-path {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sparkline-area {
+  fill: rgba(9, 132, 227, 0.08);
+  stroke: none;
+}
+
+.sparkline-dot {
+  fill: var(--primary);
+  stroke: var(--card-bg);
+  stroke-width: 2.5;
+  r: 4;
+}
+
+.sparkline-label {
+  font-size: 9px;
+  fill: var(--text-muted);
+  font-family: monospace;
+}
+
+.sparkline-grid {
+  stroke: var(--border);
+  stroke-width: 0.5;
+  stroke-dasharray: 2,2;
+  opacity: 0.5;
+}
+
+/* ── Range buttons ──────────────────────────────────────────────────────── */
+.range-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.range-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.range-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.range-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.range-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Limitation note ────────────────────────────────────────────────────── */
+.limitation-note {
+  background: rgba(253,203,110,0.1);
+  border-left: 3px solid var(--warning);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 8px 0;
+}
+
+/* ── Chart images ───────────────────────────────────────────────────────── */
+.chart { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; background: var(--border); margin-right: 4px; }
+
+/* ── Back to top ────────────────────────────────────────────────────────── */
+.back-to-top {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: var(--primary);
+  text-decoration: none;
+}
+.back-to-top:hover { text-decoration: underline; }
+"""
+
+_JS = """
+function showRange(ticker, range) {
+  // Hide all sparklines for this ticker
+  document.querySelectorAll('.sparkline-' + ticker).forEach(function(el) {
+    el.style.display = 'none';
+  });
+  // Show selected
+  var selected = document.getElementById('sparkline-' + ticker + '-' + range);
+  if (selected) selected.style.display = 'block';
+  // Update buttons
+  document.querySelectorAll('.btn-' + ticker).forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  var activeBtn = document.getElementById('btn-' + ticker + '-' + range);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+"""
+
+
+# ── Helpers ──────────────────────────────────────────────────────────────────
+
+
+def _h(text: str) -> str:
+    return html.escape(str(text))
+
+
+def _badge_class(signal: str) -> str:
+    return {
+        "BUY": "badge-buy",
+        "HOLD": "badge-hold",
+        "WATCH": "badge-watch",
+        "SELL": "badge-sell",
+    }.get(signal.upper(), "badge-watch")
+
+
+def _load_history() -> Dict[str, List[Dict[str, Any]]]:
+    """Load top-10 score history from JSON."""
+    if not _HISTORY_FILE.exists():
+        return {}
+    try:
+        with _HISTORY_FILE.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        # data is {date: [ {ticker, rank, composite_score, ...}, ... ]}
+        # Convert to per-ticker list
+        ticker_history: Dict[str, List[Dict[str, Any]]] = {}
+        for date_str, entries in sorted(data.items()):
+            for entry in entries:
+                ticker = entry.get("ticker")
+                if ticker:
+                    ticker_history.setdefault(ticker, [])
+                    ticker_history[ticker].append({
+                        "date": date_str,
+                        "score": entry.get("composite_score", 0) or 0,
+                        "price": entry.get("price"),
+                        "rank": entry.get("rank"),
+                    })
+        # Sort each ticker's history by date
+        for ticker in ticker_history:
+            ticker_history[ticker].sort(key=lambda x: x["date"])
+        return ticker_history
+    except Exception as exc:
+        logger.warning("Failed to load history: %s", exc)
+        return {}
+
+
+def _sparkline_svg(
+    ticker: str,
+    history: List[Dict[str, Any]],
+    range_label: str,
+    visible: bool = True,
+) -> str:
+    """Generate an inline SVG sparkline for a ticker."""
+    if not history or len(history) < 2:
+        return ""
+
+    scores = [h["score"] for h in history]
+    dates = [h["date"] for h in history]
+    n = len(scores)
+
+    # Padding
+    pad_left = 40
+    pad_right = 20
+    pad_top = 15
+    pad_bottom = 20
+    chart_w = 600 - pad_left - pad_right
+    chart_h = 90 - pad_top - pad_bottom
+
+    min_score = max(0, min(scores) - 5)
+    max_score = max(scores) + 5
+    score_range = max(1, max_score - min_score)
+
+    x_step = chart_w / (n - 1) if n > 1 else chart_w
+
+    def _x(i: int) -> float:
+        return pad_left + i * x_step
+
+    def _y(s: float) -> float:
+        return pad_top + chart_h - ((s - min_score) / score_range) * chart_h
+
+    points = " ".join(f"{_x(i)},{_y(s):.1f}" for i, s in enumerate(scores))
+    area_points = f"{_x(0)},{pad_top + chart_h} {points} {_x(n - 1)},{pad_top + chart_h}"
+
+    last_x = _x(n - 1)
+    last_y = _y(scores[-1])
+
+    # Date labels (first, middle-ish, last)
+    date_labels = []
+    if n >= 3:
+        for idx in [0, n // 2, n - 1]:
+            d = dates[idx]
+            label = d[5:] if len(d) >= 7 else d
+            date_labels.append(
+                f'<text x="{_x(idx):.1f}" y="86" text-anchor="middle" class="sparkline-label">{_h(label)}</text>'
+            )
+    else:
+        d = dates[-1]
+        label = d[5:] if len(d) >= 7 else d
+        date_labels.append(f'<text x="{last_x:.1f}" y="86" text-anchor="middle" class="sparkline-label">{_h(label)}</text>')
+
+    y_labels = [
+        f'<text x="{pad_left - 6}" y="{pad_top + chart_h + 3}" text-anchor="end" class="sparkline-label">{min_score:.0f}</text>',
+        f'<text x="{pad_left - 6}" y="{pad_top + 3}" text-anchor="end" class="sparkline-label">{max_score:.0f}</text>',
+    ]
+
+    grid_lines = [
+        f'<line x1="{pad_left}" y1="{pad_top}" x2="{pad_left + chart_w}" y2="{pad_top}" class="sparkline-grid"/>',
+        f'<line x1="{pad_left}" y1="{pad_top + chart_h / 2}" x2="{pad_left + chart_w}" y2="{pad_top + chart_h / 2}" class="sparkline-grid"/>',
+        f'<line x1="{pad_left}" y1="{pad_top + chart_h}" x2="{pad_left + chart_w}" y2="{pad_top + chart_h}" class="sparkline-grid"/>',
+    ]
+
+    display = "block" if visible else "none"
+
+    return (
+        f'<div class="sparkline-wrap sparkline-{_h(ticker)}" id="sparkline-{_h(ticker)}-{range_label}" style="display:{display}">'
+        f'  <div class="sparkline-header">'
+        f'    <div class="sparkline-title">📈 Score Trend ({_h(range_label)})</div>'
+        f'    <div style="font-size:0.75rem;color:var(--text-muted)">{_h(n)} data points</div>'
+        f'  </div>'
+        f'  <svg class="sparkline-svg" viewBox="0 0 600 90" preserveAspectRatio="none">'
+        f'    {"".join(grid_lines)}'
+        f'    <polygon points="{area_points}" class="sparkline-area"/>'
+        f'    <polyline points="{points}" class="sparkline-path"/>'
+        f'    <circle cx="{last_x:.1f}" cy="{last_y:.1f}" class="sparkline-dot"/>'
+        f'    {"".join(y_labels)}'
+        f'    {"".join(date_labels)}'
+        f'  </svg>'
+        f'</div>'
+    )
+
+
+def _render_ticker_charts(ticker: str, history: List[Dict[str, Any]]) -> str:
+    """Render range selector buttons + sparklines for a ticker."""
+    if not history or len(history) < 2:
+        return '<p style="color:var(--text-muted);font-size:0.85rem">Not enough history for trend chart.</p>'
+
+    total = len(history)
+
+    # Define ranges and how many points they show
+    ranges = [
+        ("1M", min(total, 30)),
+        ("10D", min(total, 10)),
+        ("7D", min(total, 7)),
+        ("1D", min(total, 1)),
+    ]
+
+    # Sub-daily ranges (not available with daily collection)
+    sub_daily = ["1H", "30M", "10M", "5M", "1M"]
+
+    parts: List[str] = ['<div class="range-buttons">']
+
+    # Daily ranges
+    for label, count in ranges:
+        if count < 1:
+            continue
+        active = "active" if label == "1M" else ""
+        subset = history[-count:]
+        parts.append(
+            f'<button id="btn-{_h(ticker)}-{label}" class="range-btn btn-{_h(ticker)} {active}" '
+            f'onclick="showRange(\'{_h(ticker)}\', \'{label}\')">{label}</button>'
+        )
+
+    # Sub-daily placeholders
+    for label in sub_daily:
+        parts.append(
+            f'<button class="range-btn disabled" title="Requires real-time data feeds" '
+            f'onclick="alert(&quot;Sub-daily trends require real-time data collection. &quot; '
+            f'+ &quot;Current pipeline collects data once daily. &quot; '
+            f'+ &quot;To enable 1H–1M charts, integrate a real-time stock price API.&quot;)">'
+            f'{label}</button>'
+        )
+
+    parts.append('</div>')
+
+    # Render sparklines for each daily range
+    for label, count in ranges:
+        if count < 1:
+            continue
+        subset = history[-count:]
+        visible = label == "1M"
+        parts.append(_sparkline_svg(ticker, subset, label, visible))
+
+    # Sub-daily placeholder message
+    parts.append(
+        '<div class="limitation-note">'
+        '💡 <strong>Sub-daily charts (1H → 1M):</strong> Not available. '
+        'This pipeline collects data once per day. To show hourly/minute-level trends, '
+        'you would need to integrate a real-time stock price API (e.g., Yahoo Finance intraday, '
+        'Alpaca, or Polygon.io) and run the pipeline every minute instead of daily.'
+        '</div>'
+    )
+
+    return "\n".join(parts)
+
+
+# ── Main generator ───────────────────────────────────────────────────────────
 
 
 def generate(
@@ -47,40 +519,31 @@ def generate(
     """
     ts = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    lines: List[str] = [
+    # Load historical data for sparklines
+    ticker_history = _load_history()
+
+    parts: List[str] = [
         "<!DOCTYPE html>",
         '<html lang="en">',
         "<head>",
         '  <meta charset="UTF-8">',
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
-        f"  <title>Market Intelligence Dashboard — {ts}</title>",
-        "  <style>",
-        "    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f6fa; color: #2d3436; }",
-        "    h1, h2 { color: #2d3436; }",
-        "    .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }",
-        "    table { width: 100%; border-collapse: collapse; margin-top: 10px; }",
-        "    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #dfe6e9; }",
-        "    th { background: #f8f9fa; font-weight: 600; }",
-        "    .score { font-weight: bold; color: #0984e3; }",
-        "    .bullish { color: #00b894; }",
-        "    .bearish { color: #d63031; }",
-        "    .neutral { color: #fdcb6e; }",
-        "    .chart { max-width: 100%; border-radius: 8px; margin-top: 10px; }",
-        "    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }",
-        "    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; background: #dfe6e9; margin-right: 4px; }",
-        "  </style>",
-        "</head>",
-        "<body>",
-        f"  <h1>📈 Market Intelligence Dashboard</h1>",
-        f"  <p>Generated: <strong>{html.escape(ts)}</strong></p>",
+        f'  <title>Market Intelligence Dashboard — {ts}</title>',
+        '  <style>',
+        _CSS,
+        '  </style>',
+        '</head>',
+        '<body>',
+        f'  <h1 id="top">📈 Market Intelligence Dashboard</h1>',
+        f'  <p>Generated: <strong>{_h(ts)}</strong></p>',
         '  <div class="card">',
-        "    <h2>📊 Top-10 Investment Picks</h2>",
+        '    <h2>📊 Top-10 Investment Picks</h2>',
         '    <table>',
-        "      <tr><th>Rank</th><th>Ticker</th><th>Score</th><th>Price</th><th>Change %</th><th>Sentiment</th><th>Signal</th><th>Change</th></tr>",
+        '      <tr><th>Rank</th><th>Ticker</th><th>Score</th><th>Price</th><th>Change %</th><th>Sentiment</th><th>Signal</th><th>Change</th></tr>',
     ]
 
     for item in ranked:
-        ticker = html.escape(item["ticker"])
+        ticker = item["ticker"]
         score = item.get("composite_score", 0)
         price = item.get("price", "—")
         change = item.get("change_pct", "—")
@@ -88,131 +551,213 @@ def generate(
         signal = item.get("kimi_signal", "") or item.get("ai_analysis", {}).get("signal", "WATCH")
         rank_change = item.get("rank_change", "—")
         sentiment_cls = "bullish" if sentiment == "bullish" else "bearish" if sentiment == "bearish" else "neutral"
-        lines.append(
-            f"      <tr>"
-            f"<td>{item['rank']}</td>"
-            f"<td><strong>{ticker}</strong></td>"
+        parts.append(
+            f'      <tr>'
+            f'<td>{item["rank"]}</td>'
+            f'<td><a href="#ticker-{_h(ticker)}" class="ticker-link">{_h(ticker)}</a></td>'
             f'<td class="score">{score}</td>'
-            f"<td>{price}</td>"
-            f"<td>{change}</td>"
+            f'<td>{price}</td>'
+            f'<td>{change}</td>'
             f'<td class="{sentiment_cls}">{sentiment.capitalize()}</td>'
-            f"<td>{html.escape(signal)}</td>"
-            f"<td>{html.escape(str(rank_change))}</td>"
-            f"</tr>"
+            f'<td><span class="badge {_badge_class(signal)}">{_h(signal)}</span></td>'
+            f'<td>{_h(str(rank_change))}</td>'
+            f'</tr>'
         )
 
-    lines += [
-        "    </table>",
-        "  </div>",
+    parts += [
+        '    </table>',
+        '  </div>',
     ]
 
     # Charts
     valid_charts = [c for c in chart_paths if c and c.exists() and c.name]
     if valid_charts:
-        lines += ['  <div class="grid">']
+        parts += ['  <div class="grid">']
         for chart in valid_charts:
-                rel = chart.name
-                lines += [
-                    '    <div class="card">',
-                    f'      <img src="{html.escape(rel)}" class="chart" alt="{html.escape(rel)}">',
-                    "    </div>",
+            rel = chart.name
+            parts += [
+                '    <div class="card">',
+                f'      <img src="{_h(rel)}" class="chart" alt="{_h(rel)}">',
+                '    </div>',
+            ]
+        parts += ["  </div>"]
+
+    # ── Per-ticker detail cards ────────────────────────────────────────────
+    if ranked:
+        parts += ['  <h2 id="details">📋 Ticker Details & Trends</h2>']
+
+        for item in ranked:
+            ticker = item["ticker"]
+            score = item.get("composite_score", 0)
+            price = item.get("price", "—")
+            change = item.get("change_pct", "—")
+            sentiment = item.get("avg_sentiment_label", "neutral").capitalize()
+            signal = item.get("kimi_signal", "") or item.get("ai_analysis", {}).get("signal", "WATCH")
+            compound = item.get("avg_sentiment", 0.0)
+            ai = item.get("ai_analysis", {})
+            history = ticker_history.get(ticker, [])
+
+            parts += [
+                f'  <div class="card ticker-detail" id="ticker-{_h(ticker)}">',
+                f'    <div class="ticker-detail-header">',
+                f'      <div class="ticker-detail-symbol">{_h(ticker)}</div>',
+                f'      <div class="ticker-detail-meta">',
+            ]
+            if price is not None:
+                parts.append(f'        <span>💵 ${price} &nbsp;|&nbsp; 📊 {change}%</span>')
+            parts += [
+                f'        <span class="badge badge-{sentiment.lower()}">{sentiment}</span>',
+                f'        <span class="badge {_badge_class(signal)}">{_h(signal)}</span>',
+                f'        <span class="score">Score: {score}</span>',
+                f'      </div>',
+                f'    </div>',
+            ]
+
+            # Trend chart with range selector
+            parts.append(f'    <h3>📈 Trend</h3>')
+            parts.append(_render_ticker_charts(ticker, history))
+
+            # Sentiment
+            parts += [
+                f'    <h3>🎭 Sentiment</h3>',
+                f'    <p><strong>Compound:</strong> {compound:.3f} &nbsp;|&nbsp; <strong>Label:</strong> {sentiment}</p>',
+            ]
+
+            # AI Thesis
+            if ai.get("thesis"):
+                parts += [
+                    f'    <h3>🗣️ What the Market Is Saying</h3>',
+                    f'    <p>{_h(ai["thesis"])}</p>',
                 ]
-        lines += ["  </div>"]
+
+            # Catalysts
+            if ai.get("catalysts"):
+                parts += [f'    <h3>🚀 Catalysts</h3>', '<ul>']
+                for c in ai["catalysts"]:
+                    parts.append(f'      <li>{_h(c)}</li>')
+                parts += ['</ul>']
+
+            # Risks
+            if ai.get("risks"):
+                parts += [f'    <h3>⚠️ Risks</h3>', '<ul>']
+                for r in ai["risks"]:
+                    parts.append(f'      <li>{_h(r)}</li>')
+                parts += ['</ul>']
+
+            # Evidence links
+            if item.get("news_sources"):
+                parts += [f'    <h3>📰 Sources</h3>', '<ul>']
+                for src in item["news_sources"][:5]:
+                    title = src.get("title", "Source")
+                    url = src.get("url", "")
+                    if url:
+                        parts.append(f'      <li><a href="{_h(url)}" target="_blank" rel="noopener">{_h(title)}</a></li>')
+                    else:
+                        parts.append(f'      <li>{_h(title)}</li>')
+                parts += ['</ul>']
+
+            parts += [
+                f'    <a href="#top" class="back-to-top">↑ Back to top</a>',
+                f'  </div>',
+            ]
 
     # Spiking topics
     if spiking_topics:
-        lines += [
+        parts += [
             '  <div class="card">',
-            "    <h2>🚀 Spiking Topics (Emerging)</h2>",
+            '    <h2>🚀 Spiking Topics (Emerging)</h2>',
             '    <table>',
-            "      <tr><th>Topic</th><th>Today</th><th>7-Day Avg</th><th>Z-Score</th></tr>",
+            '      <tr><th>Topic</th><th>Today</th><th>7-Day Avg</th><th>Z-Score</th></tr>',
         ]
         for st in spiking_topics[:10]:
-            lines.append(
-                f"      <tr>"
-                f"<td>{html.escape(st['topic'])}</td>"
-                f"<td>{st['today_count']}</td>"
-                f"<td>{st['rolling_mean']}</td>"
-                f"<td>{st['z_score']}</td>"
-                f"</tr>"
+            parts.append(
+                f'      <tr>'
+                f'<td>{_h(st["topic"])}</td>'
+                f'<td>{st["today_count"]}</td>'
+                f'<td>{st["rolling_mean"]}</td>'
+                f'<td>{st["z_score"]}</td>'
+                f'</tr>'
             )
-        lines += ["    </table>", "  </div>"]
+        parts += ['    </table>', '  </div>']
 
     # Top topics
-    lines += [
+    parts += [
         '  <div class="card">',
-        "    <h2>🔥 Trending Topics</h2>",
+        '    <h2>🔥 Trending Topics</h2>',
     ]
     for topic, score in topics[:20]:
-        lines.append(f'    <span class="tag">{html.escape(topic)} ({score})</span>')
-    lines += ["  </div>"]
+        parts.append(f'    <span class="tag">{_h(topic)} ({score})</span>')
+    parts += ['  </div>']
 
     # Source highlights
-    lines += [
+    parts += [
         '  <div class="card">',
-        "    <h2>📰 News Highlights</h2>",
-        "    <ul>",
+        '    <h2>📰 News Highlights</h2>',
+        '    <ul>',
     ]
     for article in articles[:8]:
-        title = html.escape(article.get("title", ""))
-        url = html.escape(article.get("url", ""))
-        source = html.escape(article.get("source", ""))
+        title = article.get("title", "")
+        url = article.get("url", "")
+        source = article.get("source", "")
         if title:
-            link = f'<a href="{url}" target="_blank" rel="noopener">{title}</a>' if url else title
-            lines.append(f"      <li><strong>[{source}]</strong> {link}</li>")
-    lines += ["    </ul>", "  </div>"]
+            link = f'<a href="{_h(url)}" target="_blank" rel="noopener">{_h(title)}</a>' if url else _h(title)
+            parts.append(f'      <li><strong>[{_h(source)}]</strong> {link}</li>')
+    parts += ['    </ul>', '  </div>']
 
     # Cost & Verification
     if cost:
-        lines += [
+        parts += [
             '  <div class="card">',
-            "    <h2>💰 Cost & Token Usage</h2>",
+            '    <h2>💰 Cost & Token Usage</h2>',
             '    <table>',
-            "      <tr><th>Metric</th><th>Value</th></tr>",
-            f"      <tr><td>Total API calls</td><td>{cost.get('total_calls', 0)}</td></tr>",
-            f"      <tr><td>Input tokens</td><td>{cost.get('total_input_tokens', 0):,}</td></tr>",
-            f"      <tr><td>Output tokens</td><td>{cost.get('total_output_tokens', 0):,}</td></tr>",
-            f"      <tr><td><strong>Total cost</strong></td><td><strong>${cost.get('total_cost_usd', 0)}</strong></td></tr>",
+            '      <tr><th>Metric</th><th>Value</th></tr>',
+            f'      <tr><td>Total API calls</td><td>{cost.get("total_calls", 0)}</td></tr>',
+            f'      <tr><td>Input tokens</td><td>{cost.get("total_input_tokens", 0):,}</td></tr>',
+            f'      <tr><td>Output tokens</td><td>{cost.get("total_output_tokens", 0):,}</td></tr>',
+            f'      <tr><td><strong>Total cost</strong></td><td><strong>${cost.get("total_cost_usd", 0)}</strong></td></tr>',
         ]
         for provider, data in cost.get("by_provider", {}).items():
-            lines.append(
-                f"      <tr><td>{html.escape(provider.capitalize())} ({data['calls']} calls)</td>"
-                f"<td>${data['cost_usd']}</td></tr>"
+            parts.append(
+                f'      <tr><td>{_h(provider.capitalize())} ({data["calls"]} calls)</td>'
+                f'<td>${data["cost_usd"]}</td></tr>'
             )
-        lines += ["    </table>", "  </div>"]
+        parts += ['    </table>', '  </div>']
 
     if verification:
-        lines += [
+        parts += [
             '  <div class="card">',
-            "    <h2>✅ Verification Checklist</h2>",
+            '    <h2>✅ Verification Checklist</h2>',
             '    <table>',
-            "      <tr><th>#</th><th>Goal</th><th>Status</th><th>Count</th></tr>",
+            '      <tr><th>#</th><th>Goal</th><th>Status</th><th>Count</th></tr>',
         ]
         for i, item in enumerate(verification, start=1):
             status = "✅" if item.get("status") else "❌"
-            lines.append(
-                f"      <tr><td>{i}</td><td>{html.escape(item['goal'])}</td>"
-                f"<td>{status}</td><td>{item.get('count', 0)}</td></tr>"
+            parts.append(
+                f'      <tr><td>{i}</td><td>{_h(item["goal"])}</td>'
+                f'<td>{status}</td><td>{item.get("count", 0)}</td></tr>'
             )
         passed = sum(1 for v in verification if v.get("status"))
-        lines += [
-            "    </table>",
-            f"    <p><strong>{passed}/{len(verification)} goals achieved.</strong></p>",
-            "  </div>",
+        parts += [
+            '    </table>',
+            f'    <p><strong>{passed}/{len(verification)} goals achieved.</strong></p>',
+            '  </div>',
         ]
 
     # Footer
-    lines += [
+    parts += [
         '  <div class="card">',
-        "    <p><em>This dashboard is generated automatically for informational purposes only. "
-        "It does not constitute financial advice.</em></p>",
-        "  </div>",
-        "</body>",
-        "</html>",
+        '    <p><em>This dashboard is generated automatically for informational purposes only. '
+        'It does not constitute financial advice.</em></p>',
+        '  </div>',
+        '  <script>',
+        _JS,
+        '  </script>',
+        '</body>',
+        '</html>',
     ]
 
     out = output_path or (Path("outputs") / f"dashboard_{datetime.now(tz=timezone.utc).strftime('%Y%m%d_%H%M%S')}.html")
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines), encoding="utf-8")
+    out.write_text("\n".join(parts), encoding="utf-8")
     logger.info("HTML dashboard saved to %s", out)
     return out

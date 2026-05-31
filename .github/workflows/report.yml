@@ -24,7 +24,9 @@ jobs:
           python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
       - uses: actions/cache@v4
         with:
-          path: outputs/ticker_score_history.json
+          path: |
+            outputs/ticker_score_history.json
+            outputs/top10_history.json
           key: ticker-history
       - name: Run pipeline
         env:
